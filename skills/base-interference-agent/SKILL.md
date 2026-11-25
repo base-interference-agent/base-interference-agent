@@ -36,6 +36,9 @@ Rules for the key:
 - Other CDP pages for Base (Wallet MCP plugins, faucets, x402, smart accounts, delegated signing): see `references/cdp-docs/`.
 - Never add an MCP server to the user's config without their say-so. Show the command and let them run it.
 
+## o1 Exchange docs
+- `references/o1-docs/` holds all 121 pages of docs.o1.exchange (terminal, Launchpad, Earn, staking, token, and mobile). Start with `introduction.md`. Cite the original URL, `https://docs.o1.exchange/<same path>`.
+
 ## o1 Launchpad API (quote, swap, create token, claims)
 - Reference: `references/o1-launchpad-api/`. Start with `launchpad/api/quickstart.md`, `launchpad/api/authentication.md`, and the endpoint pages under `launchpad/public-api/reference/`.
 - Base URL and auth: send the key in the `x-api-key` header, never in a query string. The key is read from `LAUNCHPAD_API_KEY` in `.env`. Never print it or put it in code.
