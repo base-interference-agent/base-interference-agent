@@ -39,6 +39,9 @@ Rules for the key:
 ## o1 Exchange docs
 - `references/o1-docs/` holds all 121 pages of docs.o1.exchange (terminal, Launchpad, Earn, staking, token, and mobile). Start with `introduction.md`. Cite the original URL, `https://docs.o1.exchange/<same path>`.
 
+## Tokens
+- BINT (Base Interference), Base Mainnet `0xb200000000000000000000231734d0c898f56201`: details and launch info in `references/tokens/bint.md`. Page: https://launch.o1.exchange/token/0xb200000000000000000000231734d0c898f56201?chain=8453
+
 ## Lending and borrowing (Base Earn, Morpho)
 - Reference: `references/base-docs/sdks/base-earn/` (start with `overview.md`, `morpho-borrow.md`, `faq.md`).
 - The Base Earn API needs no API key. Read requests (vaults, positions) are open. Write requests need the app's builder code from https://dashboard.base.org.
