@@ -41,7 +41,9 @@ Rules for the key:
 
 ## o1 Launchpad API (quote, swap, create token, claims)
 - Reference: `references/o1-launchpad-api/`. Start with `launchpad/api/quickstart.md`, `launchpad/api/authentication.md`, and the endpoint pages under `launchpad/public-api/reference/`.
-- Setup for each user: if `LAUNCHPAD_API_KEY` is missing from `.env`, tell the user to create their own key at https://launch.o1.exchange/developers?chain=8453 (connect their own wallet, create a key, and copy it once). Then they paste it into `.env` as `LAUNCHPAD_API_KEY`. Do not ask for the key in chat, and do not use or share anyone else's key.
+- Proxy mode (preferred for teams): if `LAUNCHPAD_PROXY_URL` is set in `.env`, send requests to `<LAUNCHPAD_PROXY_URL>/v1/...` with no key. The proxy adds the key on the server (see `proxy/README.md`). Don't ask for or look for a key in this mode.
+- Direct mode: base URL `https://api.launch.o1.exchange/v1` with the user's own key.
+- Setup for each user (direct mode only): if `LAUNCHPAD_API_KEY` is missing from `.env`, tell the user to create their own key at https://launch.o1.exchange/developers?chain=8453 (connect their own wallet, create a key, and copy it once). Then they paste it into `.env` as `LAUNCHPAD_API_KEY`. Do not ask for the key in chat, and do not use or share anyone else's key.
 - Auth: send the key in the `x-api-key` header, never in a query string. Never print it or put it in code.
 - Read: search and list tokens, token details, trades, holders, wallet activity, fee claims.
 - Swap: quote an exact-input trade (quotes expire after 2 minutes), then prepare the unsigned transaction. Show the user the minimum output, fees, and slippage, and wait for approval.
