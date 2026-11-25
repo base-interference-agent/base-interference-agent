@@ -1,0 +1,37 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.cdp.coinbase.com/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# getDefaultEvmRpcUrls
+
+```ts theme={null}
+function getDefaultEvmRpcUrls(): Promise<Record<string, {
+  rpcUrl: string;
+}>>;
+```
+
+Defined in: [constants.ts:94](https://github.com/coinbase/cdp-sdk/blob/a1195adcfa5a93627bd3cb79831b188cc13073a1/typescript/packages/cdp-sdk/src/x402/constants.ts#L94)
+
+Resolves the default EVM RPC URLs used for x402 payment signing, keyed by
+CAIP-2 network identifier.
+
+Only Base and Base Sepolia get a default: both are backed by the CDP
+project's own authenticated node endpoint (via getBaseNodeRpcUrl),
+so no shared public infrastructure sits on the payment-signing path and no
+extra configuration is required to use them.
+
+All other networks (Polygon, Arbitrum, World, etc.) have no default RPC.
+RPC URLs are optional for core payload signing on those networks — they're
+only needed to backfill optional extension capabilities (for example,
+`eip2612` gas-sponsoring enrichment) — so callers that need one must supply
+it explicitly via the `rpcUrls` config option or `CDP_X402_RPC_URLS`
+environment variable.
+
+## Returns
+
+`Promise`\<`Record`\<`string`, \{
+`rpcUrl`: `string`;
+}>>
+
+CAIP-2 keyed RPC configuration map containing only the networks
+that resolved successfully.

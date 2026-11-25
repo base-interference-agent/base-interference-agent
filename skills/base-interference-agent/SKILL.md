@@ -19,8 +19,13 @@ description: "Helps with Base (Coinbase's Ethereum L2): answers questions about 
 
 ## Base MCP (answer install questions from here)
 - **Base docs MCP** (search the docs from an AI assistant): `claude mcp add --transport http base-docs https://docs.base.org/mcp`, then `claude mcp list` to verify. Source: `references/base-docs/get-started/docs-mcp.md`.
-- **Wallet MCP** is a different product, the old "Base MCP" wallet tool, now at Coinbase Developer Platform: https://docs.cdp.coinbase.com/ai-agents/coinbase-for-agents/wallet-mcp. Its page was not copied, so give the link and say so.
+- **Wallet MCP** (the old "Base MCP" wallet tool, now on Coinbase Developer Platform): server URL `https://wallet-mcp.coinbase.com`. Install steps for each client are in `references/cdp-docs/coinbase-for-agents/wallet-mcp/references/install.md`. Canonical page: https://docs.cdp.coinbase.com/ai-agents/coinbase-for-agents/wallet-mcp.
+- Other CDP pages for Base (Wallet MCP plugins, faucets, x402, smart accounts, delegated signing): see `references/cdp-docs/`.
 - Never add an MCP server to the user's config without their say-so. Show the command and let them run it.
+
+## CDP docs
+- `references/cdp-docs/` holds 89 Coinbase Developer Platform pages that matter for Base: Wallet MCP, its plugins for Base protocols, faucets, x402, smart accounts, and wallet security. Start with the path in its name, then read the page. Source site: https://docs.cdp.coinbase.com.
+- Java SDK reference and staking guides are left out on purpose.
 
 ## 2. Building on Base
 - For a task that needs more than the reference covers, use the bundled skills:
