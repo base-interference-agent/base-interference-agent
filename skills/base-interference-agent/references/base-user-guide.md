@@ -38,7 +38,7 @@ Sources: docs.base.org pages in `base-docs/` (network fees, connect to Base, get
 
 ## 6. Where to go next
 - Build on Base: `references/base-docs/build-on-base/`
-- Lend and borrow: `references/base-docs/sdks/base-earn/` (Morpho is listed as coming soon in the docs)
+- Lend and borrow: `references/base-docs/sdks/base-earn/` (Morpho: see references/morpho/morpho-api.md)
 - Swap tokens: `references/kyberswap/swap-api.md`
 - Launch or trade o1 tokens: `references/o1-docs/`
 - Grants: `references/sdks-index.md`

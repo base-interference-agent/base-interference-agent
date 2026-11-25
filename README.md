@@ -6,7 +6,7 @@
 - **Ask about Base:** networks and chain IDs (Base Mainnet by default), RPC and explorer URLs, bridges, token addresses, wallets, SDKs, and grant programs. Answers come from the Base docs copied into the skill, with source links.
 - **Set up a wallet on Base:** add the network to your wallet, get ETH and USDC onto Base, and check fees. Includes a safety checklist.
 - **Swap tokens (buy and sell):** get a KyberSwap quote on Base, then build the transaction for your wallet to sign. You approve every step.
-- **Lend and borrow:** read the Base Earn docs and prepare lending and borrowing steps. Morpho is listed as "coming soon" in the docs.
+- **Lend and borrow (Morpho):** read Morpho markets, vaults, and positions through the Morpho API. Preparing lending or borrowing transactions needs a Morpho API key.
 - **Launch and trade o1 tokens:** quote trades, prepare token launches and claims, and read token data through the o1 Launchpad API. Each user adds their own o1 API key.
 - **Build on Base:** deploy contracts, add Builder Codes, run a node, and use the vibenet devnet, with the bundled Base skills.
 - **Find the right docs:** search the full Base docs, the o1 docs, and the Coinbase Developer Platform pages for Base.

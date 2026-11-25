@@ -43,7 +43,7 @@ Rules for the key:
 - Reference: `references/base-docs/sdks/base-earn/` (start with `overview.md`, `morpho-borrow.md`, `faq.md`).
 - The Base Earn API needs no API key. Read requests (vaults, positions) are open. Write requests need the app's builder code from https://dashboard.base.org.
 - Base URL: `https://api.base.org/earn/v1`.
-- Morpho status: the docs list Morpho Earn and Morpho Borrow as "coming soon." Tell the user this before any lending or borrowing step, and check the docs for the current status.
+- Morpho: live through the Morpho API. Read data is public. Preparing transactions needs a Morpho API key. See `references/morpho/morpho-api.md`.
 - Flow: list vaults, deposit or borrow (the API returns unsigned calls), the user's wallet signs and submits them, then read positions. Withdrawals use an explicit slippage limit.
 - Borrowing carries liquidation risk. Always show the collateral, the borrow amount, and the liquidation risk, and get approval before any step. Yields and funds are exposed to protocol risk.
 
