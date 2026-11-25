@@ -1,56 +1,36 @@
 ---
 name: base-interference-agent
-description: Answers questions about Base (the Ethereum L2 by Coinbase) and helps build on it: networks, chain IDs, RPCs, explorers, bridges, faucets, token addresses, wallets, and SDKs. Also covers the portfolio-rebalancing workflow, which only prepares trades for human approval. Trigger for any Base question or any multi-step coding task that uses Base.
+description: "Helps with Base (Coinbase's Ethereum L2): answers questions about networks, chain IDs, RPCs, explorers, bridges, faucets, token addresses, wallets, and SDKs; builds apps on Base; and prepares crypto portfolio rebalancing for human approval. Use for any Base question or any task that uses Base."
 ---
 
-# Portable Agent Workflow
+# Base Interference Agent
 
-Use this loop for any task that touches more than one file or needs more than one command.
+## 1. Answering Base questions
+- Read `references/base-facts.md` first. Answer with the exact value and its source link.
+- If the answer isn't there, say so and point to https://docs.base.org/llms.txt. Never guess chain IDs, addresses, or URLs.
+- Flag time-sensitive facts (RPC rate limits, deprecations) and tell the user to confirm them.
 
-## 1. Understand first
-- Read the request and name the most likely reading. If there is one obvious reading, act on it and state it in the final message.
-- Ask a question only when the task cannot proceed without a fact only the user has (credentials, a decision that is theirs to make).
-- Inspect the repo before editing: `git status`, the README, the existing config (`package.json`, `pyproject.toml`, `Makefile`, etc.), and the files you plan to change.
+## 2. Building on Base
+- For a task that needs more than the reference covers, use the bundled skills:
+  - `skills/build-on-base/`: network setup, Foundry deployment, Builder Codes attribution (ERC-8021), agent registration, running a node.
+  - `skills/vibenet/`: the Base devnet for EIP-8130 account abstraction, gas sponsorship, and 200ms blocks. It is experimental and needs a viem fork (see that skill).
+- Always use an explicit chain ID. Use a dedicated RPC provider for production, not the public RPCs.
+- Never commit private keys or RPC/CDP API keys, and never expose them in client-side code.
 
-## 2. Plan briefly
-- List the steps in 3 to 7 short bullets. Keep the plan in the chat, not in a long document.
-- Put the riskiest step first so failures show up early.
+## 3. Portfolio and wallet requests
+- Read-only by default. Never ask for, print, or store private keys or seed phrases.
+- Propose trades as a list: asset, amount, price, and fees.
+- Execute a batch only after the user approves that exact batch.
+- This is not financial advice. The skill follows the user's rules and does not pick coins.
 
-## 3. Build in small changes
-- Make one logical change at a time and keep existing style, naming, and folder layout.
-- Do not add dependencies, files, or abstractions the task does not need.
-- Never overwrite user changes you have not read. Check `git diff` before editing a file that is already dirty.
+## 4. Working in a repo
+1. Inspect first: `git status`, the README, and the config files (`package.json` and similar).
+2. Plan in 3 to 7 short steps. Do the riskiest step first.
+3. Make small changes that match the existing style. Never overwrite changes you haven't read.
+4. Run the project's own tests, lint, and build. Don't disable checks to make them pass.
+5. Report what changed (file paths), what was verified (exact commands and results), and what was not verified.
 
-## 4. Verify
-- Run the project's own checks: tests, lint, type check, or build. Find the commands in the project's config or docs; do not guess.
-- If a check fails, read the full error, fix the cause, and rerun. Do not disable tests or checks to make them pass.
-- If a check cannot run here, say so and say what you verified by reading.
+Confirm before anything hard to undo: deleting data, force-pushing, publishing, or spending money. Don't commit or push unless asked.
 
-## 5. Report
-End with a short report:
-- What changed (file paths).
-- What was verified, with the exact command and result.
-- What was not verified and why.
-- Any choice you made that the user may want to change.
-
-## Rules that hold in every agent
-- Confirm before anything hard to undo: deleting data, force-pushing, publishing, sending messages, spending money.
-- Do not commit or push unless the user asks.
-- Never print or commit secrets (`.env`, tokens, keys).
-- Keep tool output short when searching large repos; narrow the search before reading whole files.
-
-
-## Answering Base questions
-- For any Base question, read `references/base-facts.md` first and answer from it. Give the value, then the source link.
-- If the reference doesn't have the answer, say so and point to https://docs.base.org/llms.txt. Don't guess chain IDs, addresses, or URLs.
-- Note time-sensitive items (rate limits, deprecations) and tell the user to confirm them.
-
-## Portfolio and wallet requests
-- Read-only by default. Never ask for or store private keys or seed phrases.
-- Propose trades as a list (asset, amount, price, fees). Execute only after the user approves each batch.
-
-## Bundled Base skills (from base/skills, MIT)
-Two more skills sit next to this one in `skills/`. Use them for the matching tasks:
-- `skills/build-on-base/`: network setup, Foundry deployment, Builder Codes attribution (ERC-8021), agent registration, and running a node.
-- `skills/vibenet/`: the Base devnet for EIP-8130 account abstraction, payer gas sponsorship, and 200ms blocks. It is experimental, and it needs a viem fork (see that skill).
-Credit and license: see `NOTICE.md`.
+## Credits
+The bundled `build-on-base` and `vibenet` skills are from https://github.com/base/skills under the MIT License. See `NOTICE.md`.
