@@ -39,6 +39,25 @@ Rules for the key:
 ## o1 Exchange docs
 - `references/o1-docs/` holds all 121 pages of docs.o1.exchange (terminal, Launchpad, Earn, staking, token, and mobile). Start with `introduction.md`. Cite the original URL, `https://docs.o1.exchange/<same path>`.
 
+## Approval workflow (for every money action)
+Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all follow the same steps:
+1. Gather: read the data (balances, prices, rates, vault details, collateral health). Use read-only APIs first.
+2. Plan: list every action in order, with the amount, token, counterparty or vault, fees, slippage, and the minimum or maximum result.
+3. Risk: for borrowing, show the collateral, loan-to-value, liquidation threshold, and what happens if prices move. For vaults, show the strategy, fees, and protocol risk. Never call an investment safe.
+4. Approve: ask the user to approve the full plan (or each step). Don't proceed on a vague "yes."
+5. Prepare: request unsigned transactions. Verify each one (recipient, amount, chain ID 8453) before signing.
+6. Sign: the user's wallet signs and sends. The agent never holds keys for these actions unless the user has set up `AGENT_WALLET_PRIVATE_KEY` and approved the specific plan.
+7. Verify: check the result on basescan.org and read the new position.
+- One prompt can start the whole flow, but every money step still needs approval.
+- No automatic trading, rebalancing, or borrowing without an approved plan.
+
+## Lending, borrowing, and vaults (Morpho)
+- Morpho docs index saved at `references/morpho/llms.txt`. Start there for any page.
+- Morpho's own MCP server (https://mcp.morpho.org/) returns data and unsigned transactions for a user's wallet to sign. Mention it as an option for users who want Morpho tools inside their agent.
+- Index vaults and strategies: show the vault, its curator, fees, past performance, and risks. Don't recommend a vault as an investment.
+- Borrowing USDC: follow the approval workflow above, and show the liquidation price before approval.
+- Morpho Blue and Midnight markets have different rules. Read the matching guide in the index before preparing a transaction.
+
 ## Tokens
 - BINT (Base Interference), Base Mainnet `0xb200000000000000000000231734d0c898f56201`: details and launch info in `references/tokens/bint.md`. Page: https://launch.o1.exchange/token/0xb200000000000000000000231734d0c898f56201?chain=8453
 

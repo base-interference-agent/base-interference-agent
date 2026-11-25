@@ -1,0 +1,362 @@
+# Morpho Docs
+
+> Documentation for Morpho — the open credit network.
+
+Each page link below points to that page's raw Markdown. The whole corpus is at https://docs.morpho.org/llms-full.txt. To read Morpho data, use the Read API at https://api.morpho.org by default (task-to-endpoint map: https://docs.morpho.org/api.md).
+
+## When to use Morpho
+
+Morpho is an onchain lending protocol. Lenders deposit assets into vaults or markets to earn interest; borrowers take loans against collateral, at variable rates (Morpho Blue markets) or fixed rates (Midnight markets). Use these docs and tools when a task involves:
+
+- Reading Morpho markets, vaults, positions or rates: call the Read API at https://api.morpho.org. OpenAPI document for the Morpho Read API (including Midnight): https://docs.morpho.org/openapi.json. Midnight endpoints: [Midnight API](https://docs.morpho.org/developers/midnight/tutorials/get-data.md). Endpoint map by task: [API get started](https://docs.morpho.org/api.md).
+- Moving code or queries from the Morpho GraphQL API: GraphQL shuts down on January 29, 2027. Find the REST route for each query, including removed fields such as `marketByUniqueKey`, in the [GraphQL to REST migration guide](https://docs.morpho.org/developers/api/migrate-from-graphql.md).
+- Building an AI agent, bot or backend that reads Morpho data: call the same Read API at https://api.morpho.org directly; it is the recommended interface for agents too. Wallet position routes: [Production reads over REST](https://docs.morpho.org/developers/agents/get-started.md).
+- Trying Morpho from a chat client or coding agent, or preparing unsigned transactions there: connect the hosted MCP server at https://mcp.morpho.org/ (experimental, pre-v1.0; Streamable HTTP, no authentication). Not for production systems. Setup: [MCP setup](https://docs.morpho.org/developers/agents/mcp.md).
+- Adding Morpho deposits, withdrawals or borrows to a TypeScript app: use the Morpho SDK ([SDK get started](https://docs.morpho.org/developers/sdks/get-started.md)).
+- Calling Morpho contracts directly: contract references at [Contracts](https://docs.morpho.org/developers/contracts.md) and deployed addresses at [contract addresses](https://docs.morpho.org/developers/contracts/addresses.md).
+- Curating a Morpho vault (caps, allocations, roles): [Curate a vault](https://docs.morpho.org/curate.md).
+- Reward programs and claims: the Read API does not serve reward rates yet; see [Rewards](https://docs.morpho.org/developers/rewards/tutorials/fetch-rewards-data.md) and the Merkl documentation at https://docs.merkl.xyz/.
+
+Morpho tools return data or unsigned transactions; the user's wallet signs and sends them.
+
+## Read API conventions
+
+- Every response wraps its payload in `data`: one object for a single resource, an array for a list. `GET /v0/tokens/{token-selector}/price` returns `{ "data": { "price": ... } }`, so read `data.price`.
+- Paginated list routes, the ones that accept a `cursor` query parameter, return `{ "data": [...], "cursor": string | null }`, and some add `params` or `last_indexed_block`. There is no `items`, `next_cursor` or `pageInfo` field. To read the next page, send the returned `cursor` back as the `cursor` query parameter; `null` means the last page:
+
+  ```js
+  const rows = []
+  let cursor = null
+  do {
+    const url = new URL('https://api.morpho.org/v0/blue/markets?chain_id=1')
+    if (cursor) url.searchParams.set('cursor', cursor)
+    const body = await (await fetch(url)).json()
+    rows.push(...body.data)
+    cursor = body.cursor
+  } while (cursor)
+  ```
+
+## Get Started: Introduction
+
+- [Get Started](https://docs.morpho.org/get-started.md): Choose a Morpho documentation path for app builders, vault curators, or protocol developers, with links to Earn, Borrow, API, SDK, and contract guides.
+- [Products](https://docs.morpho.org/get-started/products.md): Build powerful financial applications with Morpho's decentralized lending infrastructure.
+- [Customer Stories](https://docs.morpho.org/get-started/customer-stories.md): Powering builders of tomorrow's finance.
+
+## Get Started: Resources
+
+- [Morpho Research](https://docs.morpho.org/get-started/resources/whitepapers.md): Browse Morpho research papers on Midnight, the MORPHO token, interest rate optimization, Morpho Blue, and adversarial liquidation.
+- [Morpho Apps](https://docs.morpho.org/get-started/resources/apps.md): Find Morpho applications and guides for using them.
+- [Vault App](https://docs.morpho.org/get-started/resources/apps/vault.md): Use the Vault App to explore vaults, manage withdrawals and market positions, claim rewards, and review permissions.
+- [Interface Listing Policy](https://docs.morpho.org/get-started/resources/apps/interface-listing-policy.md): Read the policy for listing curators, vaults, markets, and tokens in the Morpho interface, including eligibility, enforcement, warnings, and delisting.
+- [Addresses](https://docs.morpho.org/developers/contracts/addresses.md): Find deployed Morpho contract addresses across supported environments and protocol components, for developers checking integrations and contract interactions.
+- [Morpho Blog](https://morpho.org/blog/category/101-content/)
+- [Landing Page](https://morpho.org/)
+- [Data Page](https://data.morpho.org/)
+- [Brand Assets](https://brand.morpho.org/)
+- [Disclaimer](https://morpho.org/disclaimers/)
+
+## Learn
+
+- [Morpho Overview](https://docs.morpho.org/learn.md): Morpho is an open credit network for lending and borrowing crypto and tokenized assets, built on Morpho Blue, Morpho Midnight and Morpho Vaults.
+
+## Learn: Fixed Rate Markets (Midnight)
+
+- [What is Midnight?](https://docs.morpho.org/learn/concepts/midnight.md): Understand Midnight fixed-rate lending, market units, offers, early exits, collateral, liquidations, gates, and fees for lenders and borrowers.
+- [Offers](https://docs.morpho.org/learn/concepts/midnight/offers.md): Understand Midnight maker and taker offers, their settlement paths, validation, callbacks, shared budgets, and offchain discovery.
+- [Midnight Liquidation](https://docs.morpho.org/learn/concepts/midnight/liquidation.md): Understand Midnight liquidation rules for unhealthy positions and unpaid debt at maturity, including incentives, post-maturity cases, and bad debt.
+- [Gates](https://docs.morpho.org/learn/concepts/midnight/gates.md): Understand Midnight entry and liquidator gates, how they restrict market access, and why changing gate conditions requires a new market.
+
+## Learn: Variable Rate Markets (Blue)
+
+- [Variable Rate Market (Morpho Blue)](https://docs.morpho.org/learn/concepts/blue.md): Understand Morpho Blue variable-rate markets, their five parameters, governance-approved risk settings, permissionless creation, and core lending actions.
+- [Interest Rate Model](https://docs.morpho.org/learn/concepts/blue/irm.md): Understand how Morpho markets calculate borrow and supply APY from interest rate models, including the AdaptiveCurveIRM behavior.
+- [Blue Liquidation](https://docs.morpho.org/learn/concepts/blue/liquidation.md): Understand Morpho Blue liquidation thresholds, health factors, incentives, repayment and collateral seizure.
+
+## Learn: Vaults
+
+- [Morpho Vault V2](https://docs.morpho.org/learn/concepts/vault-v2.md): Understand Morpho Vault V2 adapters, risk caps, liquidity, roles, gates, fee wrappers, and the mechanisms that support non-custodial exits.
+- [Public Allocator](https://docs.morpho.org/learn/concepts/public-allocator.md): How Morpho vaults provide on-demand liquidity to isolated markets.
+- [Curator](https://docs.morpho.org/learn/concepts/curator.md): Understand the Curator's role in setting vault risk parameters and liquidity rules, and how curation fits the Morpho Vault V2 role system.
+
+## Learn: Protocol Utilities
+
+- [Oracle](https://docs.morpho.org/learn/concepts/oracle.md): Understand oracles in Morpho markets, compatible price sources, Chainlink reference contracts, market selection, deployment, and oracle risks.
+- [Rewards on Morpho](https://docs.morpho.org/learn/concepts/rewards.md): Understand Morpho Vault and market rewards, how incentive programs work, and where integrators can find distribution and claim details.
+- [Morpho Bundles](https://docs.morpho.org/learn/concepts/bundles.md): Understand Morpho Bundles, how bundle contracts compose protocol actions, and how integrators use them for token permissions and monetization.
+
+## Learn: Governance
+
+- [Morpho Governance](https://docs.morpho.org/learn/governance.md): How Morpho governance works: what MORPHO token-holders control, how proposals are discussed and voted on, and how approved actions are executed.
+- [Governance Organization](https://docs.morpho.org/learn/governance/organization.md): Understand Morpho governance's limited scope and powers, the Morpho Association's role, and the governance and rewards multisig addresses.
+- [The MORPHO token](https://docs.morpho.org/learn/governance/morpho-token.md): Review MORPHO token distribution, vesting, transferability, delegation, and the differences between legacy and wrapped tokens.
+
+## Learn: Resources
+
+- [Risk & Security Documentation](https://docs.morpho.org/learn/resources/risks.md): Review smart contract, oracle, counterparty, liquidation, liquidity, and vault governance risks for Morpho users and lenders.
+- [Audits - Security Reviews](https://docs.morpho.org/get-started/resources/audits.md): Review Morpho's security practices, including formal verification, testing, peer review, external audits, contests, and deployment bounties.
+- [Formal Verification](https://docs.morpho.org/learn/resources/formal-verification.md): Review Morpho's formal verification process, Certora use, and the components that have been checked alongside other security measures.
+
+## Curate
+
+- [Morpho Curation](https://docs.morpho.org/curate.md): Overview of Morpho Vault curation for curators, covering operational responsibilities, market allocation, risk assessment, rewards, and shared liquidity.
+- [Morpho Tool Suite](https://docs.morpho.org/curate/tool-suite.md): Find Morpho tools for vault curators, including the curator applications and supporting interfaces used to configure and monitor vaults.
+
+## Curate: Concepts
+
+- [Curation Strategies](https://docs.morpho.org/curate/concepts.md): For Vault curators, use progressive timelocks by configuration stage and optimize rates through market selection, utilization, and liquidity allocation.
+- [Roles & Capabilities](https://docs.morpho.org/curate/concepts/roles.md): Compare Owner, Curator, Allocator, Sentinel, and Guardian permissions in Morpho Vaults V1 and V2 to understand who can configure or move assets.
+- [Liquidity Curation](https://docs.morpho.org/curate/concepts/liquidity.md): Compare liquidity curation in Morpho Vaults V1 and V2, from queues and adapters to risk caps, allocation workflows, and in-kind redemption.
+- [Yield Generation](https://docs.morpho.org/curate/concepts/yield.md): For vault curators, compare yield in Morpho Vaults V1 and V2, including adapter reporting, market interest, and the V2 maxRate limit on share growth.
+- [Fees](https://docs.morpho.org/curate/concepts/fee.md): Compare how Morpho Vaults V1 and V2 charge performance and management fees, set recipients, and mint shares to collect fees from interest.
+- [Timelock](https://docs.morpho.org/curate/concepts/timelock.md): Understand how Morpho Vault timelocks delay configuration changes, which actions they protect, and how curators can preserve time for users to respond.
+- [Gates in Morpho Vaults](https://docs.morpho.org/curate/concepts/gates.md): Compare Vault V1 and V2 access controls for deposits, withdrawals, and transfers, including gate contracts, timelocks, and permanent abdication choices.
+- [Adapter Registry](https://docs.morpho.org/curate/concepts/adapter-registry.md): Adapter registries limit which adapters a vault can use, with the Morpho Registry listing approved adapters and curators able to make that perimeter permanent.
+- [Handling Permissioned Tokens in the Morpho App](https://docs.morpho.org/curate/concepts/permissioned-assets.md): Find issuer-whitelisting requirements for permissioned tokens in variable-rate markets, fixed-rate markets, and vaults, plus Permit2 approval guidance.
+- [Security Considerations for Vault Curators](https://docs.morpho.org/curate/concepts/security-considerations.md): Review vault curator risks involving faulty oracles, adapter changes, vault shares used as collateral, and inflation attacks, with prevention guidance.
+
+## Curate: Tutorials General
+
+- [List Asset](https://docs.morpho.org/curate/tutorials-general/list-asset.md): Submit an ERC-20 asset for listing from the Curator app, check its metadata and follow the token listing review.
+- [Deploy an Oracle for Morpho Markets](https://docs.morpho.org/curate/tutorials-general/deploying-oracle.md): Deploy and validate a Morpho oracle for curators, covering Chainlink Oracle V2 parameters, price feeds, conversion samples, and post-deployment checks.
+
+## Curate: Tutorials Variable Rate Market
+
+- [Create a Market](https://docs.morpho.org/curate/tutorials-market-v1/creating-market.md): Create a Morpho variable-rate market by choosing its parameters and oracle, then review the setup steps for curators using the Market V1 workflow.
+- [Set the Rate at Target](https://docs.morpho.org/curate/tutorials-market-v1/setting-rate.md): Guidance for curators on IRM mechanics and steering a new Morpho market toward a target rate through utilization and liquidity planning.
+- [Market Dead deposit](https://docs.morpho.org/curate/tutorials-market-v1/dead-deposit.md): Set up a dead deposit for a variable-rate Morpho market by supplying 1e9 shares on behalf of the dead address through a block explorer.
+
+## Curate: Tutorials Vault V2
+
+- [Create a Morpho Vault V2](https://docs.morpho.org/curate/tutorials-v2/vault-creation.md): Deploy a Morpho Vault V2 with the Curator App or Etherscan, then verify the dead deposit, roles, adapters, and timelocks before user deposits.
+- [Morpho Vault V2 Dead Deposit](https://docs.morpho.org/curate/tutorials-v2/dead-deposit.md): Calculate and execute the Morpho Vault V2 dead deposit on an empty vault, then verify the mint and check additional requirements for underlying positions.
+- [Configure Vault V2 Roles](https://docs.morpho.org/curate/tutorials-v2/roles.md): Configure Owner, Curator, Allocator, and Sentinel roles for Morpho Vault V2 through the Curator App or Etherscan, with role-specific action timing.
+- [Act as a Sentinel in the Curator App](https://docs.morpho.org/curate/tutorials-v2/sentinel.md): Use the Morpho Vault V2 Sentinel role to revoke pending actions, lower caps, and deallocate assets while responding to risk without adding exposure.
+- [Liquidity Curation with MarketV1AdapterV2](https://docs.morpho.org/curate/tutorials-v2/liquidity-curation.md): Configure the Morpho Vault V2 liquidity adapter and understand reallocation, forceDeallocate safety behavior, associated costs, and mitigation steps.
+- [Public Allocator](https://docs.morpho.org/curate/tutorials-v2/public-allocator.md): Enable and configure the Public Allocator for a Morpho Vault V2.
+- [Curate Adapters (Vaults V2)](https://docs.morpho.org/curate/tutorials-v2/listing-adapters.md): Deploy, enable, configure caps for, and remove adapters in Morpho Vault V2 using the Curator App or direct contract calls.
+- [(De)List Markets (in MorphoMarketV1AdapterV2)](https://docs.morpho.org/curate/tutorials-v2/market-listing.md): List and delist variable-rate markets through MorphoMarketV1AdapterV2 by setting market caps and reallocating assets with app, script, or explorer flows.
+- [Abdicate Gates](https://docs.morpho.org/curate/tutorials-v2/abdicate-gates.md): Abdicate Morpho Vault V2 gates through the Curator App, Etherscan, or Solidity so users retain access under the vault's chosen permanent gate settings.
+- [Distribute Rewards in a Morpho Vault V2](https://docs.morpho.org/curate/tutorials-v2/donation.md): Set the distribution pace and send the vault's asset to a Morpho Vault V2 to distribute incentives to its users.
+- [Checklist to Validate Vault V2 Configuration](https://docs.morpho.org/curate/tutorials-v2/checklist.md): For curators, validate a Morpho Vault V2 using the MorphoMarketV1AdapterV2, checking roles, registry, gates, risk caps, timelocks, and deposit readiness.
+- [Vault Visibility](https://docs.morpho.org/curate/tutorials-v2/vault-visibility.md): Request a Morpho Vault V2 listing in the Vault app, price its receipt token on CoinGecko and update its Etherscan token page.
+- [Handling Bad Debt: Morpho Vault V2](https://docs.morpho.org/curate/tutorials-v2/bad-debt.md): See how Morpho Vault V2 detects and socializes bad debt, and review the curator considerations for unrealized losses, fees, and adapter exposure.
+- [Unwind a Morpho Vault V2](https://docs.morpho.org/curate/tutorials-v2/unwind-vault-v2.md): Wind down a Morpho Vault V2 by blocking deposits, moving market and adapter assets to idle, and coordinating user communication and app listings.
+- [Emergency Procedures (Vaults V2)](https://docs.morpho.org/curate/tutorials-v2/emergency.md): Use Morpho Vault V2 emergency procedures to respond to unsafe markets or adapters and compromised Allocator, Curator, Owner, or Sentinel roles.
+
+## Curate: Legacy Tutorials Vault V1
+
+- [Create a Vault](https://docs.morpho.org/curate/tutorials-v1/vault-creation.md): Create and configure a Morpho Vault V1 through the Curator App or a block explorer, with setup guidance for vault owners and curators.
+- [Vault Dead deposit](https://docs.morpho.org/curate/tutorials-v1/dead-deposit.md): Set up a dead deposit for a Morpho Vault V1 by minting shares to the dead address through a block explorer, protecting it from ERC-4626 inflation attacks.
+- [Manage Vault Roles](https://docs.morpho.org/curate/tutorials-v1/roles.md): Assign and manage Morpho Vault V1 owner, curator, allocator, and guardian roles through the Curator App or contract calls.
+- [Curate Markets & Liquidity (Vaults V1)](https://docs.morpho.org/curate/tutorials-v1/manage-markets.md): Manage Morpho Vault V1 supply caps and queues, then follow the curator procedures for listing, reallocating, and delisting markets.
+- [Curate Allocations (Vaults V1)](https://docs.morpho.org/curate/tutorials-v1/manage-allocations.md): Move Morpho Vault V1 capital between enabled markets with the Curator App or direct contract calls while respecting the curator's risk parameters.
+- [Managing Bad Debt: How-to Guide](https://docs.morpho.org/curate/tutorials-v1/bad-debt.md): Learn how Morpho Vault V1.0 and V1.1 handle market bad debt, and how curators compute the loan-token loss and choose an action to cover it.
+- [Unwind a Morpho Vault V1](https://docs.morpho.org/curate/tutorials-v1/unwind-vault-v1.md): Wind down a Morpho Vault V1 by blocking new deposits, removing market exposure, and reducing yield so users can withdraw their assets.
+- [Emergency Procedures](https://docs.morpho.org/curate/tutorials-v1/emergency.md): Respond to unsafe markets and compromised roles in Morpho Vault V1 with curator procedures for reducing exposure and protecting vault users.
+
+## Developers
+
+- [Developers](https://docs.morpho.org/developers.md): Build on Morpho with product integrations, data tools, and open-source examples.
+
+## Developers: Products
+
+- [Fixed Rate Markets (Midnight)](https://docs.morpho.org/developers/midnight/get-started.md): Integrate Midnight fixed-rate markets with market discovery, quotes, offer execution, positions, and transaction flows for application developers.
+- [Market Mechanics](https://docs.morpho.org/developers/midnight/concepts/market-mechanics.md): Build fixed-rate integrations by understanding Midnight market units, credit, debt, maturity, and how supply and borrow positions change over time.
+- [Collateral, Health, Liquidations](https://docs.morpho.org/developers/midnight/concepts/collateral-health-liquidations.md): Build Midnight borrower interfaces with collateral health and liquidation checks, including how positions change as fixed-rate debt approaches maturity.
+- [Mempool & Router](https://docs.morpho.org/developers/midnight/concepts/mempool-router.md): Understand how the Midnight router and mempool validate offers before publication and how integrators can handle routing and takeability.
+- [Tick Structure](https://docs.morpho.org/developers/midnight/concepts/tick-structure.md): Understand how Midnight tick values represent prices and fixed rates, and use the structure when building offers and market displays.
+- [Fees](https://docs.morpho.org/developers/midnight/concepts/fees.md): Understand Midnight fees across lending, borrowing, and settlement flows, with guidance for integrators displaying costs and net position value.
+- [Multi-Market Offers](https://docs.morpho.org/developers/midnight/concepts/multi-market-offers.md): Build offers that span Midnight markets while sharing liquidity and execution constraints, with guidance on fragmentation and offer behavior.
+- [Callbacks](https://docs.morpho.org/developers/midnight/concepts/callbacks.md): Understand how Midnight callbacks let offers source assets from an external contract at settlement while capital can remain supplied to Morpho Blue.
+- [Rolling loans into Morpho Blue](https://docs.morpho.org/developers/midnight/concepts/rolling-loans.md): How fallback rolling can move Midnight debt to a Morpho Blue market.
+- [Get data](https://docs.morpho.org/developers/midnight/tutorials/get-data.md): Fetch Midnight market, position, offer, and quote data through the API.
+- [Lend at a fixed rate](https://docs.morpho.org/developers/midnight/tutorials/lend-at-a-fixed-rate.md): Build a Midnight lender flow that finds a market, estimates the rate, quotes existing borrow offers, and executes a fixed-rate lend.
+- [Lend from a Morpho Blue position](https://docs.morpho.org/developers/midnight/tutorials/lend-from-morpho-blue.md): Keep lend-offer assets supplied to Morpho Blue until a Midnight borrower takes them, then publish, cancel, and recover callback-backed offers.
+- [Borrow at a fixed rate](https://docs.morpho.org/developers/midnight/tutorials/borrow-at-a-fixed-rate.md): Build a Midnight borrower flow that finds markets, quotes an offer, authorizes the transaction, and borrows at a fixed rate.
+- [Redeem lend at maturity](https://docs.morpho.org/developers/midnight/tutorials/redeem-lend-at-maturity.md): Redeem Midnight credit at maturity for the loan token, using SDK or raw contract flows to read the position and complete settlement.
+- [Exit borrow at maturity](https://docs.morpho.org/developers/midnight/tutorials/exit-borrow-by-repaying-in-full-at-maturity.md): Close a Midnight borrow at maturity by reading debt and collateral, repaying the full balance, and withdrawing collateral through SDK or contract calls.
+- [Exit lend early](https://docs.morpho.org/developers/midnight/tutorials/exit-lend-early.md): Exit a Midnight lend before maturity by selling credit units to buy offers, with quotes and SDK or contract flows for full or partial exits.
+- [Exit a borrow early](https://docs.morpho.org/developers/midnight/tutorials/exit-borrow-early.md): Exit a Midnight borrow before maturity by buying units from offers, quoting and authorizing a full or partial repayment, and releasing collateral.
+- [Display positions](https://docs.morpho.org/developers/midnight/tutorials/display-positions.md): Display Midnight positions by reading balances, maturity values, offers, and callback-backed exit quotes through API or SDK data.
+- [Guide: How to Monetize Your Midnight Product](https://docs.morpho.org/developers/midnight/guides/monetize-midnight-product.md): Review monetization patterns for Midnight products, including where fees can be applied and the tradeoffs for fixed-rate integrations.
+- [Midnight: Developer Resources](https://docs.morpho.org/developers/midnight/resources/all.md): Find APIs, SDKs, contracts, examples, and external resources for developers integrating Morpho Midnight fixed-rate markets.
+- [Morpho Variable Rate Markets for Borrow products](https://docs.morpho.org/developers/blue/get-started.md): Integrate Morpho variable-rate borrowing by supporting collateral supply, borrowing, repayment, withdrawals, position monitoring, rewards, and risk disclosures.
+- [Market Mechanics](https://docs.morpho.org/developers/blue/concepts/market-mechanics.md): Build against Morpho accounting by understanding Market and Position data, asset-share conversions, and the supply, borrow, repay, and withdraw functions.
+- [Collateral, LTV & Health](https://docs.morpho.org/developers/blue/concepts/ltv.md): Display collateral, loan-to-value, liquidation thresholds, and health factors in a Morpho borrow interface, with calculation guidance for developers.
+- [Interest Rates](https://docs.morpho.org/developers/blue/concepts/interest-rates.md): Understand how Morpho market interest models set borrower rates and accrue debt, with integration guidance for tracking onchain state and health.
+- [Shared Liquidity](https://docs.morpho.org/developers/blue/concepts/shared-liquidity.md): Show and use liquidity that the Public Allocator can move into a Morpho Blue market.
+- [Liquidation](https://docs.morpho.org/developers/blue/concepts/liquidation.md): Build borrow integrations that explain when Morpho positions can be liquidated, how liquidators repay debt and seize collateral, and how bad debt arises.
+- [Rewards for Borrowers](https://docs.morpho.org/developers/blue/concepts/rewards.md): Display borrower incentives that offset Morpho market borrowing costs, with guidance on reward distribution and prioritizing net cost in the interface.
+- [Get Data](https://docs.morpho.org/developers/blue/tutorials/get-data.md): For developers, fetch Morpho Markets data via API, SDK, or onchain sources for market discovery, risk metrics, asset details, positions, and historical data.
+- [Supply Collateral, Borrow, Repay & Withdraw Collateral](https://docs.morpho.org/developers/blue/tutorials/assets-flow.md): Prepare Morpho Blue supply, borrowing, repayment, and withdrawal actions with the Actions API or SDK.
+- [Vault V2 Public Allocator](https://docs.morpho.org/developers/blue/tutorials/public-allocator.md): Build a Vault V2 reallocation snapshot, plan shared liquidity, and attach it to a Morpho Blue action.
+- [Integrate Rewards for Borrow Products](https://docs.morpho.org/developers/blue/tutorials/rewards.md): Integrate reward data and claiming for Morpho borrow products, with steps to display market incentives and support user claims.
+- [Guide: How to Monetize Your Borrow Product](https://docs.morpho.org/developers/blue/guides/monetize-borrow-product.md): Add a borrow origination fee around Morpho Markets while preserving permissionless lending, with implementation patterns and production checks for builders.
+- [Borrow: Developer Resources](https://docs.morpho.org/developers/blue/resources/all.md): Find onchain data, offchain tools, code examples, and contract resources for developers building applications on Morpho Markets.
+- [Morpho Vaults for Earn products](https://docs.morpho.org/developers/earn/get-started.md): Integrate Morpho Vaults into an earn product by supporting deposits, yield, withdrawals, rewards, vault data, and user risk considerations.
+- [Vaults & ERC4626 Mechanics](https://docs.morpho.org/developers/earn/concepts/vault-mechanics.md): Integrate Morpho Vault V2's ERC-4626 deposit and withdrawal flows by understanding shares, assets, conversions, slippage, and inflation attack protection.
+- [Yield & Fees](https://docs.morpho.org/developers/earn/concepts/yield-fees.md): For Morpho Vault V2 integrators, trace yield from borrower interest through markets to vault shares, and account for performance and management fees.
+- [Rewards for Lenders](https://docs.morpho.org/developers/earn/concepts/rewards.md): Explain how Morpho Vault reward campaigns add incentives to base yield, including reward forwarding, APY components, and distribution for earn integrators.
+- [How can distributors generate revenue on Morpho?](https://docs.morpho.org/developers/earn/concepts/generate-revenue.md): Compare revenue models for Morpho curators and distribution channels, including Fee Wrappers, offchain agreements, and onchain splitters.
+- [Fee Wrapper](https://docs.morpho.org/developers/earn/concepts/fee-wrapper.md): Understand how a Fee Wrapper adds a distribution fee layer over a Morpho Vault V2, including gates, deployment, APY, roles, and security for integrators.
+- [Wallet Structures](https://docs.morpho.org/developers/earn/concepts/wallet-structures.md): Compare five wallet custody structures for Morpho Earn integrations and see how each choice affects asset flow, custody, and accounting.
+- [Get Data](https://docs.morpho.org/developers/earn/tutorials/get-data.md): Fetch Morpho Vault metrics, APY, allocations, configuration, positions, rewards, and history with API queries for earn interfaces.
+- [Depositing & Withdrawing from Vaults](https://docs.morpho.org/developers/earn/tutorials/assets-flow.md): Build Morpho Vault V2 deposit and withdrawal flows with the API or SDK, including limits, gate checks, approvals, and slippage protection.
+- [Support forceDeallocate withdrawals](https://docs.morpho.org/developers/earn/tutorials/force-deallocate.md): Plan a Morpho Vault V2 exit when assets sit outside the liquidity adapter, using forceDeallocate capacity and transaction sizing before withdrawal.
+- [Exit an illiquid vault in kind](https://docs.morpho.org/developers/earn/tutorials/in-kind-redemption.md): Build in-kind exits for Morpho Vault V1 and V2 when borrowed assets limit normal withdrawals, with API and SDK options for Vault V2.
+- [Integrate Rewards for Earn Products](https://docs.morpho.org/developers/earn/tutorials/rewards.md): Display and claim Morpho Vault rewards in an earn product, from fetching campaign data to presenting claimable incentives.
+- [UX Requirements](https://docs.morpho.org/developers/earn/vault-ux/ux-requirement.md): Follow Morpho Earn requirements for brand attribution and user disclosures when presenting vault integrations in a product.
+- [Best Practices for Vault Integrators](https://docs.morpho.org/developers/earn/vault-ux/best-practices.md): Apply product guidance for Morpho Earn vocabulary, yield breakdowns, vault transparency, benefit messaging, education, and activation surfaces.
+- [Earn: Developer Resources](https://docs.morpho.org/developers/earn/resources/all.md): Find contracts, data sources, APIs, tools, and code examples for developers integrating Morpho Vaults into earn products.
+- [Integrating Morpho Rewards](https://docs.morpho.org/developers/rewards/get-started.md): Integrate Morpho rewards by discovering programs, tracking user balances, and adding display or claim flows for integrators and reward issuers.
+- [Reward Campaigns on Morpho](https://docs.morpho.org/developers/rewards/concepts/reward-campaigns.md): Compare vault-level and market-level Merkl reward campaigns, including forwarding, blacklisting, and data integrator considerations.
+- [Merkl Distribution System](https://docs.morpho.org/developers/rewards/concepts/distribution-system.md): Understand Merkl's offchain reward calculations, Merkle tree distribution, and user claims, with integration points for Morpho reward data.
+- [Fetch Rewards Data](https://docs.morpho.org/developers/rewards/tutorials/fetch-rewards-data.md): Fetch vault and market reward APRs, combine them with native APY, and query claimable rewards from Merkl.
+- [Create a Rewards Program](https://docs.morpho.org/developers/rewards/tutorials/create-program.md): Create a Morpho Vault or market reward program with Merkl, then check which campaign types the Morpho App displays.
+- [Claim Rewards](https://docs.morpho.org/developers/rewards/tutorials/claim-rewards.md): Implement Merkl reward claims in an application by fetching claim data, submitting the claim, and handling legacy reward flows separately.
+- [Integrate Rewards Display](https://docs.morpho.org/developers/rewards/tutorials/integrate-display.md): Build an interface for Morpho reward APY and claimable balances, including program details, live updates, empty states, and accessibility.
+- [Rewards: Developer Resources](https://docs.morpho.org/developers/rewards/resources/all.md): Find APIs, contracts, SDKs, tutorials, dashboards, and governance resources for Morpho reward integrators and program issuers.
+
+## Developers: Morpho Connect
+
+- [Morpho Connect](https://docs.morpho.org/developers/connect.md): Tools for building on Morpho from offchain.
+- [API reference](https://docs.morpho.org/api.md): Fetch Morpho market and vault data, or build simulated transaction calls with the Actions API.
+- [GraphQL to Read API Migration](https://docs.morpho.org/developers/api/migrate-from-graphql.md): Move a Morpho GraphQL API integration to the Read API: what changes, which Read API route replaces each common query, and field-by-field examples for a Vault V2, a variable rate market and a fixed rate market.
+- [API Changelog](https://docs.morpho.org/developers/api/changelog.md): Track Morpho GraphQL and Read API deprecations and removals, with dated entries for developers maintaining queries and integrations.
+- [Get Started](https://docs.morpho.org/developers/agents/get-started.md): Connect Claude Code, Codex, or Cursor to Morpho — query vaults, markets, and positions, and prepare unsigned transactions from your agent.
+- [Morpho MCP](https://docs.morpho.org/developers/agents/mcp.md): Morpho's hosted MCP server — query vaults, markets, Midnight fixed-rate markets, and positions, and prepare unsigned transactions from any MCP-compatible agent.
+- [Skills](https://docs.morpho.org/developers/agents/skills.md): Install Morpho's builder skills to build, update, and review Earn and Borrow products.
+- [llms.txt](https://docs.morpho.org/developers/agents/llms.md): For developers and AI agents, use Morpho's llms.txt index, llms-full.txt bundle, or page-level Markdown endpoint to access documentation.
+
+## Developers: Build onchain
+
+- [Morpho SDKs](https://docs.morpho.org/developers/sdks/get-started.md): Choose a Morpho TypeScript SDK for apps, bots, indexers, or dashboards, then follow links for fixed-rate flows and lower-level integration options.
+- [Morpho SDK](https://docs.morpho.org/developers/sdks/morpho-sdk.md): Use the Morpho SDK to choose a product, build action flows, satisfy transaction requirements, fetch state, and handle integration errors.
+- [Vault V2](https://docs.morpho.org/developers/sdks/morpho-sdk/vault.md): For Morpho SDK integrators, read Vault V2 state and build its deposit, withdrawal, redemption, and force-exit actions, plus in-kind exits for Vault V1 and V2.
+- [Variable Rate Market - Blue](https://docs.morpho.org/developers/sdks/morpho-sdk/blue.md): Use the Morpho SDK for variable-rate market reads and actions, including supply, borrow, repayment, collateral, withdrawals, and refinancing.
+- [Fixed Rate Market - Midnight](https://docs.morpho.org/developers/sdks/morpho-sdk/midnight.md): Use the Morpho SDK for Midnight offers and positions, including ratification, taker and maker transactions, state reads, tick math, and errors.
+- [Morpho Contracts](https://docs.morpho.org/developers/contracts.md): Find contract references for Morpho protocol components, including lending markets, vaults, oracles, bundles, and rewards integrations.
+- [Midnight](https://docs.morpho.org/developers/contracts/midnight.md): Reference Midnight core contract structs, state, selected functions, and interfaces for developers integrating fixed-rate lending and borrowing flows.
+- [Midnight periphery](https://docs.morpho.org/developers/contracts/midnight-periphery.md): Reference Midnight periphery contracts used around the core fixed-rate lending protocol, with interface details for integrators.
+- [Blue](https://docs.morpho.org/developers/contracts/blue.md): Reference Morpho Blue contract structures, parameters, functions, and errors for developers integrating variable-rate lending markets.
+- [Morpho Vaults V2](https://docs.morpho.org/developers/contracts/morpho-vaults-v2.md): Reference Morpho Vault V2 principles, caps, function selectors, and role-specific functions for developers working directly with vault contracts.
+- [MorphoMarketV1AdapterV2](https://docs.morpho.org/developers/contracts/morpho-market-v1-adapter-v2.md): Reference MorphoMarketV1AdapterV2 functions and parameters for developers integrating variable-rate markets with Morpho Vault V2.
+- [Blue Public Allocator](https://docs.morpho.org/developers/contracts/blue-public-allocator.md): Review the Blue Public Allocator contract, its market allocation behavior, and the functions developers use to interact with it.
+- [Oracles](https://docs.morpho.org/developers/contracts/oracles.md): Reference Morpho oracle contracts, price functions, adapters, factories, assumptions, and implementation details for market integrators.
+- [Interest Rate Models](https://docs.morpho.org/developers/contracts/irm.md): Reference Morpho interest rate model contracts and their parameters for developers implementing or inspecting variable-rate markets.
+- [Bundles](https://docs.morpho.org/developers/contracts/bundles.md): Reference Morpho Bundles contracts and their transaction composition flows for developers building integrations that execute multiple actions together.
+- [Universal Rewards Distributors (Deprecated)](https://docs.morpho.org/developers/contracts/rewards.md): Review the deprecated Universal Rewards Distributor contract, including root submission, claims, roles, events, and function parameters.
+- [Morpho Optimizers (Deprecated)](https://docs.morpho.org/developers/contracts/morpho-v0.md): Find deprecated Morpho V0 and tokenized supply vault addresses, plus audit and formal verification records for users with existing positions.
+
+## Developers: Ecosystem
+
+- [Community Oracles](https://docs.morpho.org/developers/ecosystem/oracles.md): Browse community-built oracle adapters and tools for Morpho markets, including Chainlink-compatible feeds, exchange rates, and price risk controls.
+- [Bots and Automations](https://docs.morpho.org/developers/ecosystem/bots-and-automations.md): Find Morpho and community bots for liquidations, quoting, and vault reallocations, with notes on their functions, risks, and source repositories.
+- [Data & Reporting](https://docs.morpho.org/developers/ecosystem/data-dashboards.md): Community dashboards for Morpho data, and the public list of markets, assets and vaults that reporting excludes.
+
+## API reference: Read API
+
+- [List market transactions](https://docs.morpho.org/api/midnight/transactions/list-market-transactions.md): Cursor-paginated feed of Midnight economic transactions for one market. GET /v0/midnight/markets/{market-id}/transactions.
+- [List user transactions](https://docs.morpho.org/api/midnight/transactions/list-user-transactions.md): Cursor-paginated feed of Midnight economic transactions affecting one user. GET /v0/midnight/users/{user-address}/transactions.
+- [List markets](https://docs.morpho.org/api/midnight/markets/list-markets.md): Cursor-paginated list of Midnight markets. Reference for GET /v0/midnight/markets in the Morpho Midnight API.
+- [Get market](https://docs.morpho.org/api/midnight/markets/get-market.md): Detail lookup for a single market. :market-id is the stable Midnight market id and is unique across supported chains, so no chain id is required.
+- [Get market state](https://docs.morpho.org/api/midnight/markets/get-market-state.md): Dynamic state lookup for a single market. :market-id is the stable Midnight market id and is unique across supported chains, so no chain id is required.
+- [List positions](https://docs.morpho.org/api/midnight/positions/list-positions.md): Cursor-paginated list of a user's current Midnight positions. Reference for GET /v0/midnight/users/{user-address}/positions in the Morpho Midnight API.
+- [List market positions](https://docs.morpho.org/api/midnight/positions/list-market-positions.md): Cursor-paginated list of current Midnight positions for a market. Reference for GET /v0/midnight/markets/{market-id}/positions in the Morpho Midnight API.
+- [Get position](https://docs.morpho.org/api/midnight/positions/get-position.md): Detail lookup for a single position by (market-id, user-address). GET /v0/midnight/markets/{market-id}/users/{user-address}/position.
+- [Get Midnight position performance](https://docs.morpho.org/api/midnight/positions/get-midnight-position-performance.md): Performance-only lookup for a single position by (market-id, user-address). GET /v0/midnight/markets/{market-id}/users/{user-address}/position/performance.
+- [Get Midnight offer groups by group id](https://docs.morpho.org/api/midnight/offer-groups/get-midnight-offer-groups-by-group-id.md): Returns every offer group matching the onchain group id, regardless of lifecycle status. GET /v0/midnight/offer-groups/{group-id}.
+- [List Midnight offer groups for a user](https://docs.morpho.org/api/midnight/offer-groups/list-midnight-offer-groups-for-a-user.md): Cursor-paginated list of a user's offer groups with nested offers. The statuses filter accepts one or more lifecycle states with OR semantics.
+- [List books](https://docs.morpho.org/api/midnight/books/list-books.md): Returns books for active maturities admitted by the current policy, with market metadata and the top 3 ask/bid levels.
+- [Get book](https://docs.morpho.org/api/midnight/books/get-book.md): Returns one active book whose maturity is admitted by the current policy, with market metadata and both sides.
+- [List book price levels](https://docs.morpho.org/api/midnight/books/list-book-price-levels.md): Returns one side of a book as price levels grouped by tick with total units, assets, and price, sorted best price first.
+- [List book takeable offers](https://docs.morpho.org/api/midnight/books/list-book-takeable-offers.md): Returns up to 1,000 executable offers for one book side, sorted best price first. This endpoint is not paginated and does not accept a limit or cursor.
+- [Get quote](https://docs.morpho.org/api/midnight/books/get-quote.md): Returns a bundle-ready quote for the requested assets or units, plus expected best/worst average prices and maximum executable liquidity.
+- [List maker takeable offers](https://docs.morpho.org/api/midnight/books/list-maker-takeable-offers.md): Returns one maker's active offers. Reference for GET /v0/midnight/takeable-offers in the Morpho Midnight API.
+- [Validate a mempool payload](https://docs.morpho.org/api/midnight/mempool/validate-a-mempool-payload.md): Use this endpoint before submitting an encoded payload to the mempool. Reference for POST /v0/midnight/mempool/validate in the Morpho Midnight API.
+- [List mempool rules](https://docs.morpho.org/api/midnight/mempool/list-mempool-rules.md): Returns admission rules and payload limits for the requested chains and policy snapshot. Follow the pagination cursor to retrieve every row.
+- [List markets](https://docs.morpho.org/api/blue/list-markets.md): Cursor-paginated discovery list of indexed Morpho Blue markets. Rows and both sort orders use immutable market configuration from the indexer.
+- [Get market](https://docs.morpho.org/api/blue/get-market.md): Morpho Blue market configuration: loan and collateral tokens, oracle, IRM, and liquidation LTV. Values are immutable for the lifetime of the market.
+- [Get market APY averages](https://docs.morpho.org/api/blue/get-market-apy-averages.md): Average supply and borrow APYs for a Morpho Blue market over fixed historical windows on the v0 REST API. Values exclude rewards.
+- [Get market APY history](https://docs.morpho.org/api/blue/get-market-apy-history.md): Historical supply and borrow APYs for a Morpho Blue market. Reference for GET /v0/blue/markets/{market-selector}/apy/history in the Morpho Core API.
+- [Get market liquidity](https://docs.morpho.org/api/blue/get-market-liquidity.md): Current Morpho Blue market liquidity and Public Allocator V2 reallocation capacity at one SDK simulation timestamp.
+- [Get market positions health](https://docs.morpho.org/api/blue/get-market-positions-health.md): Cursor-paginated LTV of every position with debt in one listed Morpho Blue market, for polling liquidation risk. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Get Public Allocator V2 candidate vaults](https://docs.morpho.org/api/blue/get-public-allocator-v2-candidate-vaults.md): Public Allocator V2 candidates for a Morpho Blue market. Returns one row per vault and adapter candidate, without aggregation. Order is unspecified.
+- [Get market state](https://docs.morpho.org/api/blue/get-market-state.md): Live state of a Morpho Blue market: total supply and borrow assets, shares, fee, and AdaptiveCurveIRM rate at target.
+- [Get market state history](https://docs.morpho.org/api/blue/get-market-state-history.md): Historical state of a Morpho Blue market: total supply and borrow assets and shares, and total collateral assets.
+- [User market position](https://docs.morpho.org/api/blue/user-market-position.md): A user's live position in a Morpho Blue market: collateral deposited, supply shares, and borrow shares.
+- [User market position history](https://docs.morpho.org/api/blue/user-market-position-history.md): A user's historical position in a Morpho Blue market: collateral deposited, supply shares, and borrow shares.
+- [User market position performance](https://docs.morpho.org/api/blue/user-market-position-performance.md): Average-cost realized and unrealized Morpho Blue supply earnings and borrow costs. External rewards are excluded.
+- [List vaults configured for or holding a position in a market](https://docs.morpho.org/api/blue/list-vaults-configured-for-or-holding-a-position-in-a-market.md): Factual relationship lookup of Vault V1 and V2 vaults currently configured for or holding a position in this Blue market. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [List user Blue positions](https://docs.morpho.org/api/blue/list-user-blue-positions.md): Cursor-paginated list of a user's Morpho Blue market positions across exposed chains, one row per market the realtime position store holds for the user,…
+- [List V2 vaults](https://docs.morpho.org/api/vaults-v2/list-v2-vaults.md): Cursor-paginated discovery list of the listed Morpho Vault V2 instances across all exposed chains. Reference for GET /v0/vaults-v2 in the Morpho Core API.
+- [List user V2 vault positions](https://docs.morpho.org/api/vaults-v2/list-user-v2-vault-positions.md): Cursor-paginated discovery list of Morpho Vault V2 positions held by a user across exposed chains. By default, only positions with non-zero shares are returned.
+- [Get V2 vault](https://docs.morpho.org/api/vaults-v2/get-v2-vault.md): Morpho Vault V2 configuration: identity, underlying asset, factory, management/performance fees, owner and curator roles, per-function timelocks and…
+- [Get V2 vault allocations](https://docs.morpho.org/api/vaults-v2/get-v2-vault-allocations.md): Adapter and cap allocation state of a Morpho Vault V2. Reference for GET /v0/vaults-v2/{vault-selector}/allocations in the Morpho Core API.
+- [Get V2 vault allocators](https://docs.morpho.org/api/vaults-v2/get-v2-vault-allocators.md): Active allocator addresses for a Morpho Vault V2 and the transaction hash and block number of each latest role grant.
+- [Get V2 vault APY history](https://docs.morpho.org/api/vaults-v2/get-v2-vault-apy-history.md): Historical APY for a Morpho Vault V2, excluding rewards. Reference for GET /v0/vaults-v2/{vault-selector}/apy/history in the Morpho Core API.
+- [Get V2 vault caps history](https://docs.morpho.org/api/vaults-v2/get-v2-vault-caps-history.md): Historical allocation and cap state of a Morpho Vault V2 grouped by cap. Reference for GET /v0/vaults-v2/{vault-selector}/caps/history in the Morpho Core API.
+- [Get Vault V2 target-market reallocatable liquidity](https://docs.morpho.org/api/vaults-v2/get-vault-v2-target-market-reallocatable-liquidity.md): Tier: T2 dynamic. Public Allocator V2 capacity into one Blue market, filtered from the canonical full composition so competing vaults share constraints. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Get V2 vault pending governance actions](https://docs.morpho.org/api/vaults-v2/get-v2-vault-pending-governance-actions.md): Pending governance actions for a Morpho Vault V2, decoded from the on-chain timelock submit calldata. Unknown selectors are returned with null parameters.
+- [Get V2 vault sentinels](https://docs.morpho.org/api/vaults-v2/get-v2-vault-sentinels.md): Active sentinel addresses for a Morpho Vault V2 and the transaction hash and block number of each latest role grant.
+- [Get V2 vault state history](https://docs.morpho.org/api/vaults-v2/get-v2-vault-state-history.md): Historical state of a Morpho Vault V2: total assets and shares, withdrawable assets, allocated assets, idle assets, and share price.
+- [User V2 vault position](https://docs.morpho.org/api/vaults-v2/user-v2-vault-position.md): A user's live position in a Morpho Vault V2: shares held and the equivalent value in underlying assets.
+- [User V2 vault position activity](https://docs.morpho.org/api/vaults-v2/user-v2-vault-position-activity.md): Events that changed a user's share balance in a Morpho Vault V2, newest first, one row per event log.
+- [User V2 vault position history](https://docs.morpho.org/api/vaults-v2/user-v2-vault-position-history.md): A user's historical position in a Morpho Vault V2: shares held and the equivalent value in underlying assets.
+- [User V2 vault position performance](https://docs.morpho.org/api/vaults-v2/user-v2-vault-position-performance.md): Realized + unrealized earnings of a user's Morpho Vault V2 position. GET /v0/vaults-v2/{vault-selector}/users/{user-address}/position/performance.
+- [Get V2 vault withdrawal options](https://docs.morpho.org/api/vaults-v2/get-v2-vault-withdrawal-options.md): Immediately available assets and adapter-level force-deallocation capacity and penalty rates for a Morpho Vault V2.
+- [Get V2 vault realized average APY](https://docs.morpho.org/api/vaults-v2/get-v2-vault-realized-average-apy.md): Realized average APY of a Morpho Vault V2 over a predefined lookback period, derived from share price evolution, excluding rewards.
+- [Get V2 vault state](https://docs.morpho.org/api/vaults-v2/get-v2-vault-state.md): Live state of a Morpho Vault V2: total assets and shares, withdrawable assets, allocated assets, and idle assets.
+- [List V1 vaults](https://docs.morpho.org/api/vaults-v1/list-v1-vaults.md): Cursor-paginated list of listed Morpho Vault V1 instances across every supported chain: identity, deployment facts, the performance-fee setup and the owner /…
+- [List user V1 vault positions](https://docs.morpho.org/api/vaults-v1/list-user-v1-vault-positions.md): Cursor-paginated discovery list of Morpho Vault V1 positions held by a user across exposed chains, including unlisted vaults.
+- [Get V1 vault](https://docs.morpho.org/api/vaults-v1/get-v1-vault.md): Morpho Vault V1 configuration: identity (name, symbol, version), underlying asset, factory, fee setup, owner/curator/guardian roles, and timelock.
+- [Get V1 vault allocations](https://docs.morpho.org/api/vaults-v1/get-v1-vault-allocations.md): Current market allocation state of a Morpho Vault V1, including timelocked per-market cap changes and market removals.
+- [Get V1 vault allocation history](https://docs.morpho.org/api/vaults-v1/get-v1-vault-allocation-history.md): Historical allocation state of a Morpho Vault V1 grouped by market: supplied assets, supplied shares, and supply cap.
+- [Get V1 vault allocators](https://docs.morpho.org/api/vaults-v1/get-v1-vault-allocators.md): Active allocator addresses for a Morpho Vault V1 and the transaction hash and block number of each latest role grant.
+- [Get V1 vault realized average APY](https://docs.morpho.org/api/vaults-v1/get-v1-vault-realized-average-apy.md): Realized average APY of a Morpho Vault V1 over a predefined lookback period, derived from share price evolution. Post-fee, excludes rewards.
+- [Get V1 vault APY history](https://docs.morpho.org/api/vaults-v1/get-v1-vault-apy-history.md): Historical APY for a Morpho Vault V1. Reference for GET /v0/vaults-v1/{vault-selector}/apy/history in the Morpho Core API.
+- [Get Vault V1 target market reallocatable liquidity](https://docs.morpho.org/api/vaults-v1/get-vault-v1-target-market-reallocatable-liquidity.md): T2 dynamic. Public Allocator V1 liquidity from canonical indexed shared reallocation routes. Vault and market selectors must use the same chain (400 otherwise). Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Get V1 vault pending governance actions](https://docs.morpho.org/api/vaults-v1/get-v1-vault-pending-governance-actions.md): Pending governance actions for a Morpho Vault V1, including timelocked cap increases, timelock decreases, guardian changes, market removals, and pending…
+- [Get V1 vault state](https://docs.morpho.org/api/vaults-v1/get-v1-vault-state.md): Live state of a Morpho Vault V1: total assets and shares, and withdrawable assets. GET /v0/vaults-v1/{vault-selector}/state.
+- [Get V1 vault state history](https://docs.morpho.org/api/vaults-v1/get-v1-vault-state-history.md): Historical state of a Morpho Vault V1: total assets and shares, withdrawable assets, and share price.
+- [User V1 vault position](https://docs.morpho.org/api/vaults-v1/user-v1-vault-position.md): A user's live position in a Morpho Vault V1: shares held and the equivalent value in underlying assets.
+- [User V1 vault position activity](https://docs.morpho.org/api/vaults-v1/user-v1-vault-position-activity.md): Discrete, log-derived events affecting a user's share balance in a Morpho Vault V1: deposits, withdrawals, and incoming or outgoing share transfers.
+- [User V1 vault position history](https://docs.morpho.org/api/vaults-v1/user-v1-vault-position-history.md): A user's historical position in a Morpho Vault V1: shares held and the equivalent value in underlying assets.
+- [User V1 vault position performance](https://docs.morpho.org/api/vaults-v1/user-v1-vault-position-performance.md): Realized + unrealized earnings of a user's Morpho Vault V1 position. GET /v0/vaults-v1/{vault-selector}/users/{user-address}/position/performance.
+- [Get oracle state](https://docs.morpho.org/api/oracles/get-oracle-state.md): Latest indexed state of an oracle: quote, onchain update timestamp, and indexed block. GET /v0/oracles/{oracle-selector}/state.
+- [Get block timestamp](https://docs.morpho.org/api/blocks/get-block-timestamp.md): The hash and unix timestamp of a block, identified by its number on a given chain. GET /v0/blocks/{block-selector}/timestamp.
+- [Get chains](https://docs.morpho.org/api/chains/get-chains.md): Fully supported EVM chains exposed by the Core REST API, with the chain id, network name, the protocols deployed on the chain, and the last block fully…
+- [Get token](https://docs.morpho.org/api/global/get-token.md): ERC-20 token identity and metadata: chain, address, name, symbol, decimals, logo, and tags. GET /v0/tokens/{token-selector}.
+- [Get token price](https://docs.morpho.org/api/global/get-token-price.md): Canonical spot price of an ERC-20 token in USD, sourced from hourly price feeds. Reference for GET /v0/tokens/{token-selector}/price in the Morpho Core API.
+- [List curators](https://docs.morpho.org/api/curators/list-curators.md): Cursor-paginated list of curator identities from Morpho's curator registry, morpho-org/morpho-blue-api-metadata/data/curators-listing.json, the same source as…
+- [Get curator details](https://docs.morpho.org/api/curators/get-curator-details.md): Resolve curator details using the selector <chain_id>:<curator_address>, where the address is the vault's on-chain curator role.
+
+## API reference: Actions API
+
+- [Verify Actions API responses](https://docs.morpho.org/api/actions/verify-responses.md): Check simulation results and verify the signed proof before signing typed data or sending Actions API calls.
+- [Midnight Repay](https://docs.morpho.org/api/actions/midnight/midnight-repay.md): Builds calls that repay Midnight debt in one of two ways selected by type. direct repays exact loan assets at face value now, or the complete debt with… Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Supply Collateral](https://docs.morpho.org/api/actions/midnight/midnight-supply-collateral.md): Builds and simulates a direct collateral supply to one configured Midnight collateral. POST /v0/actions/midnight/markets/{market-selector}/supply-collateral. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Borrow](https://docs.morpho.org/api/actions/midnight/midnight-borrow.md): Builds a borrow of an exact loan-asset amount (unit: assets) or an exact debt-unit amount (unit: units; debt units are the borrow-side unit, redeemable for… Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Make Borrow Offer](https://docs.morpho.org/api/actions/midnight/midnight-make-borrow-offer.md): Builds and simulates the calls that publish a public set of borrow offers priced by offers.type (price for a fixed price per unit, rate for an interest rate). Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Make Lend Offer](https://docs.morpho.org/api/actions/midnight/midnight-make-lend-offer.md): Builds and simulates the calls that publish a public set of lend offers priced by offers.type (price for a fixed price per unit, rate for an interest rate). Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Make Repay Offer](https://docs.morpho.org/api/actions/midnight/midnight-make-repay-offer.md): Builds and simulates the calls that publish a public set of reduce-only debt-repayment offers priced by offers.type. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Make Withdraw Offer](https://docs.morpho.org/api/actions/midnight/midnight-make-withdraw-offer.md): Builds and simulates the calls that publish a public set of reduce-only credit-withdrawal offers priced by offers.type. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Cancel Offers](https://docs.morpho.org/api/actions/midnight/midnight-cancel-offers.md): Builds and simulates an unconditional, complete cancellation of one or more offer groups. group_id values come from the Morpho API… Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Withdraw Offer Funding](https://docs.morpho.org/api/actions/midnight/midnight-withdraw-offer-funding.md): Recovers the entire supply position held by the account's funding address in a variable-rate market. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Take Offer](https://docs.morpho.org/api/actions/midnight/midnight-take-offer.md): Builds and simulates a take of one active Midnight offer group identified by <chain_id>:<group_id>. group_id values come from the Morpho API… Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Lend](https://docs.morpho.org/api/actions/midnight/midnight-lend.md): Builds a lend of an exact loan-asset spend (unit: assets, inclusive of any referral fee) or an exact credit-unit amount (unit: units; credit units are the… Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Withdraw](https://docs.morpho.org/api/actions/midnight/midnight-withdraw.md): Withdraws an exact loan-asset amount (unit: assets) or an exact credit-unit amount (unit: units) from a Midnight credit position. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Midnight Withdraw Collateral](https://docs.morpho.org/api/actions/midnight/midnight-withdraw-collateral.md): Builds calls that withdraw exact or complete balances of one or more configured collaterals from a Midnight position. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Blue Borrow](https://docs.morpho.org/api/actions/blue/blue-borrow.md): Builds and simulates wallet calls for borrowing an exact gross loan-asset amount from an existing market on the registered Morpho Blue deployment. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Blue Refinance](https://docs.morpho.org/api/actions/blue/blue-refinance.md): Builds and simulates wallet calls for moving an account's complete live debt and collateral between distinct existing markets on the registered Morpho Blue… Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Blue Repay](https://docs.morpho.org/api/actions/blue/blue-repay.md): Builds and simulates wallet calls for repaying exact loan assets, exact borrow shares, or the account's full debt position in a Morpho Blue market.… Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Blue Supply Collateral Asset](https://docs.morpho.org/api/actions/blue/blue-supply-collateral-asset.md): Builds and simulates wallet calls for supplying an exact collateral-asset amount to an existing market on the registered Morpho Blue deployment. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Blue Withdraw Collateral Asset](https://docs.morpho.org/api/actions/blue/blue-withdraw-collateral-asset.md): Builds and simulates wallet calls for withdrawing an exact collateral-asset amount from a Morpho Blue market. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Blue Supply Loan Asset](https://docs.morpho.org/api/actions/blue/blue-supply-loan-asset.md): Builds and simulates wallet calls for supplying an exact gross loan-asset amount to an existing market on the registered Morpho Blue deployment. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Blue Withdraw Loan Asset](https://docs.morpho.org/api/actions/blue/blue-withdraw-loan-asset.md): Builds and simulates wallet calls for withdrawing an exact loan-asset amount, burning an exact number of supply shares, or withdrawing the maximum available… Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Vault V2 Deposit](https://docs.morpho.org/api/actions/vaults-v2/vault-v2-deposit.md): Builds the ordered wallet calls for a deposit into an approved Morpho Vault V2 vault and simulates them. Amounts use the vault asset's base units. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Vault V2 Withdraw](https://docs.morpho.org/api/actions/vaults-v2/vault-v2-withdraw.md): Builds and simulates a Vault V2 exit. Reference for POST /v0/actions/vaults-v2/{vault-selector}/withdraw in the Morpho Actions API. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Vault V2 Force-Withdraw](https://docs.morpho.org/api/actions/vaults-v2/vault-v2-force-withdraw.md): Builds and simulates Vault V2 force exits when the vault lacks idle liquidity. Vaults containing a Midnight adapter are unsupported. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Vault V2 Redeem In-Kind](https://docs.morpho.org/api/actions/vaults-v2/vault-v2-redeem-in-kind.md): Builds and simulates an exact Vault V2 exit that returns idle assets to the account and supplies the illiquid portion into one caller-selected Morpho Blue… Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Vault V1 Deposit](https://docs.morpho.org/api/actions/vaults-v1/vault-v1-deposit.md): Builds the ordered wallet calls for a deposit into an approved Morpho Vault V1 vault and simulates them. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
+- [Vault V1 Withdraw](https://docs.morpho.org/api/actions/vaults-v1/vault-v1-withdraw.md): Builds and simulates a Vault V1 exit. Reference for POST /v0/actions/vaults-v1/{vault-selector}/withdraw in the Morpho Actions API. Private API only. An API key is required. Use https://private.api.morpho.org. [Request an API key](https://docs.morpho.org/request-api-key/).
