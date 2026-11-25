@@ -1,6 +1,6 @@
 ---
 name: base-interference-agent
-description: Use for any multi-step coding or project task in an AI coding agent (Claude Code, OpenAI Codex CLI, Gemini CLI, Cursor, Aider, or similar). Gives a plan-build-verify-report loop that works the same in every agent. Trigger when the user asks to build, fix, refactor, or set up something that needs several steps or file edits.
+description: Answers questions about Base (the Ethereum L2 by Coinbase) and helps build on it: networks, chain IDs, RPCs, explorers, bridges, faucets, token addresses, wallets, and SDKs. Also covers the portfolio-rebalancing workflow, which only prepares trades for human approval. Trigger for any Base question or any multi-step coding task that uses Base.
 ---
 
 # Portable Agent Workflow
@@ -38,3 +38,13 @@ End with a short report:
 - Do not commit or push unless the user asks.
 - Never print or commit secrets (`.env`, tokens, keys).
 - Keep tool output short when searching large repos; narrow the search before reading whole files.
+
+
+## Answering Base questions
+- For any Base question, read `references/base-facts.md` first and answer from it. Give the value, then the source link.
+- If the reference doesn't have the answer, say so and point to https://docs.base.org/llms.txt. Don't guess chain IDs, addresses, or URLs.
+- Note time-sensitive items (rate limits, deprecations) and tell the user to confirm them.
+
+## Portfolio and wallet requests
+- Read-only by default. Never ask for or store private keys or seed phrases.
+- Propose trades as a list (asset, amount, price, fees). Execute only after the user approves each batch.
