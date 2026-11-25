@@ -23,6 +23,11 @@ NOTICE.md                         third-party copyright and license
 - **Codex CLI:** copy the same folders into `~/.codex/skills/`.
 - **Other agents:** copy `AGENTS.md` into your project root.
 
+## Set up your o1 API key (for o1 features)
+1. Create your own key at https://launch.o1.exchange/developers?chain=8453 (connect your wallet, create a key, and copy it once).
+2. Copy `.env.example` to `.env` and paste the key as `LAUNCHPAD_API_KEY=`.
+3. Never share the key or commit `.env`.
+
 ## Limits
 - The reference is a snapshot of the Base docs. Check time-sensitive items such as RPC rate limits and deprecations.
 - The `vibenet` skill is experimental and needs a viem fork (see that skill).
