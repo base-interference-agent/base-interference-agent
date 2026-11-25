@@ -10,6 +10,11 @@ description: "Helps with Base (Coinbase's Ethereum L2): answers questions about 
 - If the answer isn't there, say so and point to https://docs.base.org/llms.txt. Never guess chain IDs, addresses, or URLs.
 - Flag time-sensitive facts (RPC rate limits, deprecations) and tell the user to confirm them.
 
+## 1b. Finding the right doc
+- Use `references/sdks-index.md` to pick the page for a question about SDKs, Earn, Verify, Tokenized Stocks, gas fees, MCP, or agents.
+- Fetch that page (its `.md` URL) and answer from it. Don't answer detailed questions from the index alone.
+- If the index has no page for the topic (e.g., grants, posting), say so.
+
 ## 2. Building on Base
 - For a task that needs more than the reference covers, use the bundled skills:
   - `skills/build-on-base/`: network setup, Foundry deployment, Builder Codes attribution (ERC-8021), agent registration, running a node.
