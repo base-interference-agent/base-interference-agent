@@ -1,9 +1,9 @@
 ---
-name: base-interference-agent
-description: "Helps with Base (Coinbase's Ethereum L2): answers questions about networks, chain IDs, RPCs, explorers, bridges, faucets, token addresses, wallets, and SDKs; builds apps on Base; and prepares crypto portfolio rebalancing for human approval. Use for any Base question or any task that uses Base."
+name: stoxcredit
+description: "StoxCredit helps with Base (Coinbase's Ethereum L2): answers questions about networks, chain IDs, RPCs, explorers, bridges, faucets, token addresses, wallets, and SDKs; builds apps on Base; and prepares crypto portfolio rebalancing for human approval. Use for any Base question or any task that uses Base."
 ---
 
-# Base Interference Agent
+# StoxCredit
 
 ## 0. First-time setup: agent wallet (.env)
 Use this when the user wants the agent to act on Base (send transactions, deploy, or trade), or when they ask to set up a wallet. Otherwise skip it.
@@ -38,6 +38,14 @@ Rules for the key:
 
 ## o1 Exchange docs
 - `references/o1-docs/` holds all 121 pages of docs.o1.exchange (terminal, Launchpad, Earn, staking, token, and mobile). Start with `introduction.md`. Cite the original URL, `https://docs.o1.exchange/<same path>`.
+
+## Lending and borrowing (Base Earn, Morpho)
+- Reference: `references/base-docs/sdks/base-earn/` (start with `overview.md`, `morpho-borrow.md`, `faq.md`).
+- The Base Earn API needs no API key. Read requests (vaults, positions) are open. Write requests need the app's builder code from https://dashboard.base.org.
+- Base URL: `https://api.base.org/earn/v1`.
+- Morpho status: the docs list Morpho Earn and Morpho Borrow as "coming soon." Tell the user this before any lending or borrowing step, and check the docs for the current status.
+- Flow: list vaults, deposit or borrow (the API returns unsigned calls), the user's wallet signs and submits them, then read positions. Withdrawals use an explicit slippage limit.
+- Borrowing carries liquidation risk. Always show the collateral, the borrow amount, and the liquidation risk, and get approval before any step. Yields and funds are exposed to protocol risk.
 
 ## o1 Launchpad API (quote, swap, create token, claims)
 - Reference: `references/o1-launchpad-api/`. Start with `launchpad/api/quickstart.md`, `launchpad/api/authentication.md`, and the endpoint pages under `launchpad/public-api/reference/`.
