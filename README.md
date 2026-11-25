@@ -1,17 +1,17 @@
-# StoxCredit
+# Base Interference Agent
 
 An agent skill for building on [Base](https://base.org) (Coinbase's Ethereum L2). It works with Claude Code, OpenAI Codex CLI, and other agents that support skills or `AGENTS.md`.
 
 ## What it does
 - **Lending and borrowing (Base Earn, Morpho):** the docs cover these, but Morpho is still listed as "coming soon" in the docs.
-- **Answers Base questions** from a reference: networks and chain IDs, RPC and explorer URLs, bridges, faucets, token addresses, wallets, SDKs, and grant programs (`skills/stoxcredit/references/`).
+- **Answers Base questions** from a reference: networks and chain IDs, RPC and explorer URLs, bridges, faucets, token addresses, wallets, SDKs, and grant programs (`skills/base-interference-agent/references/`).
 - **Finds the right docs page** for SDK, Earn, Verify, Tokenized Stocks, gas fee, MCP, and agent questions (`references/sdks-index.md`).
 - **Builds on Base** using two bundled skills from [base/skills](https://github.com/base/skills) (MIT): `build-on-base` (deployment, Builder Codes, nodes) and `vibenet` (account abstraction, 200ms blocks).
 - **Portfolio requests are read-only.** It can propose a rebalancing plan, but it never handles private keys and never executes trades without your approval. It is not financial advice.
 
 ## Layout
 ```
-skills/stoxcredit/   the skill (SKILL.md + references/)
+skills/base-interference-agent/   the skill (SKILL.md + references/)
 skills/build-on-base/             bundled from base/skills, MIT
 skills/vibenet/                   bundled from base/skills, MIT
 vendor/base-skills/               full copy of base/skills, MIT
@@ -20,7 +20,7 @@ NOTICE.md                         third-party copyright and license
 ```
 
 ## Install
-- **Claude Code:** copy `skills/stoxcredit/` and the two bundled skill folders into `~/.claude/skills/`.
+- **Claude Code:** copy `skills/base-interference-agent/` and the two bundled skill folders into `~/.claude/skills/`.
 - **Codex CLI:** copy the same folders into `~/.codex/skills/`.
 - **Other agents:** copy `AGENTS.md` into your project root.
 

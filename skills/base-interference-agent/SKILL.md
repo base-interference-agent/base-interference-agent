@@ -1,9 +1,9 @@
 ---
-name: stoxcredit
-description: "StoxCredit helps with Base (Coinbase's Ethereum L2): answers questions about networks, chain IDs, RPCs, explorers, bridges, faucets, token addresses, wallets, and SDKs; builds apps on Base; and prepares crypto portfolio rebalancing for human approval. Use for any Base question or any task that uses Base."
+name: base-interference-agent
+description: "Helps with Base (Coinbase's Ethereum L2): answers questions about networks, chain IDs, RPCs, explorers, bridges, faucets, token addresses, wallets, and SDKs; builds apps on Base; and prepares crypto portfolio rebalancing for human approval. Use for any Base question or any task that uses Base."
 ---
 
-# StoxCredit
+# Base Interference Agent
 
 ## 0. First-time setup: agent wallet (.env)
 Use this when the user wants the agent to act on Base (send transactions, deploy, or trade), or when they ask to set up a wallet. Otherwise skip it.
