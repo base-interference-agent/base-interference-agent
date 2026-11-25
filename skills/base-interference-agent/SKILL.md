@@ -55,7 +55,7 @@ Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all
 - Morpho docs index saved at `references/morpho/llms.txt`. Start there for any page.
 - Morpho's own MCP server (https://mcp.morpho.org/) returns data and unsigned transactions for a user's wallet to sign. Mention it as an option for users who want Morpho tools inside their agent.
 - Index vaults and strategies: show the vault, its curator, fees, past performance, and risks. Don't recommend a vault as an investment.
-- Borrowing USDC: follow the approval workflow above, and show the liquidation price before approval.
+- Borrowing USDC: follow `references/morpho/usdc-borrow-flow.md`. It needs a Morpho API key (`MORPHO_API_KEY`) for the Actions API. Follow the approval workflow above and show the liquidation price before approval.
 - Morpho Blue and Midnight markets have different rules. Read the matching guide in the index before preparing a transaction.
 
 ## Tokens
