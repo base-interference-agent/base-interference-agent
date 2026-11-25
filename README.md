@@ -1,37 +1,48 @@
 # Base Interference Agent
 
-An agent skill for building on [Base](https://base.org) (Coinbase's Ethereum L2). It works with Claude Code, OpenAI Codex CLI, and other agents that support skills or `AGENTS.md`.
+**Powered by Base Interference.** An AI agent skill for building on and using [Base](https://base.org), Coinbase's Ethereum L2. It works with Claude Code, OpenAI Codex CLI, and other agents that support skills or `AGENTS.md`.
 
-## What it does
-- **Lending and borrowing (Base Earn, Morpho):** the docs cover these, but Morpho is still listed as "coming soon" in the docs.
-- **Answers Base questions** from a reference: networks and chain IDs (Base Mainnet by default), RPC and explorer URLs, bridges, faucets, token addresses, wallets, SDKs, and grant programs (`skills/base-interference-agent/references/`).
-- **Finds the right docs page** for SDK, Earn, Verify, Tokenized Stocks, gas fee, MCP, and agent questions (`references/sdks-index.md`).
-- **Builds on Base** using two bundled skills from [base/skills](https://github.com/base/skills) (MIT): `build-on-base` (deployment, Builder Codes, nodes) and `vibenet` (account abstraction, 200ms blocks).
-- **Portfolio requests are read-only.** It can propose a rebalancing plan, but it never handles private keys and never executes trades without your approval. It is not financial advice.
+## What you can do
+- **Ask about Base:** networks and chain IDs (Base Mainnet by default), RPC and explorer URLs, bridges, token addresses, wallets, SDKs, and grant programs. Answers come from the Base docs copied into the skill, with source links.
+- **Set up a wallet on Base:** add the network to your wallet, get ETH and USDC onto Base, and check fees. Includes a safety checklist.
+- **Swap tokens (buy and sell):** get a KyberSwap quote on Base, then build the transaction for your wallet to sign. You approve every step.
+- **Lend and borrow:** read the Base Earn docs and prepare lending and borrowing steps. Morpho is listed as "coming soon" in the docs.
+- **Launch and trade o1 tokens:** quote trades, prepare token launches and claims, and read token data through the o1 Launchpad API. Each user adds their own o1 API key.
+- **Build on Base:** deploy contracts, add Builder Codes, run a node, and use the vibenet devnet, with the bundled Base skills.
+- **Find the right docs:** search the full Base docs, the o1 docs, and the Coinbase Developer Platform pages for Base.
+
+## Planned, not built yet
+- **Portfolio view:** show a wallet's Base balances and values using read-only data.
+- **Rebalancing:** plan the trades that move a portfolio to a target split. Every trade needs your approval, and the agent never signs or sends anything on its own.
+
+## Safety
+- The agent never asks for, prints, or commits your private key or seed phrase.
+- Keys live in your own `.env` file, which is git-ignored.
+- Every transaction shows the route, amounts, slippage, and minimum received before you approve it.
+- Base Mainnet uses real funds. Keep only what you need in an agent wallet.
+- This is not financial advice.
+
+## Install
+1. Copy the skill folder into your agent's skills directory:
+   - Claude Code: `skills/base-interference-agent/` and the two bundled folders to `~/.claude/skills/`
+   - Codex CLI: the same folders to `~/.codex/skills/`
+   - Other agents: copy `AGENTS.md` into your project root.
+2. For o1 features, create your own key at https://launch.o1.exchange/developers?chain=8453, copy `.env.example` to `.env`, and paste the key as `LAUNCHPAD_API_KEY=`.
 
 ## Layout
 ```
 skills/base-interference-agent/   the skill (SKILL.md + references/)
-skills/build-on-base/             bundled from base/skills, MIT
-skills/vibenet/                   bundled from base/skills, MIT
-vendor/base-skills/               full copy of base/skills, MIT
+skills/build-on-base/             bundled from base/skills (MIT)
+skills/vibenet/                   bundled from base/skills (MIT)
+vendor/base-skills/               full copy of base/skills (MIT)
+proxy/                            optional team proxy for the o1 API
 AGENTS.md                         instructions for agents that read AGENTS.md
 NOTICE.md                         third-party copyright and license
 ```
 
-## Install
-- **Claude Code:** copy `skills/base-interference-agent/` and the two bundled skill folders into `~/.claude/skills/`.
-- **Codex CLI:** copy the same folders into `~/.codex/skills/`.
-- **Other agents:** copy `AGENTS.md` into your project root.
-
-## Set up your o1 API key (for o1 features)
-1. Create your own key at https://launch.o1.exchange/developers?chain=8453 (connect your wallet, create a key, and copy it once).
-2. Copy `.env.example` to `.env` and paste the key as `LAUNCHPAD_API_KEY=`.
-3. Never share the key or commit `.env`.
-
 ## Limits
-- The reference is a snapshot of the Base docs. Check time-sensitive items such as RPC rate limits and deprecations.
-- The `vibenet` skill is experimental and needs a viem fork (see that skill).
+- Reference docs are snapshots. Check time-sensitive items such as RPC limits, Morpho status, and fees.
+- The vibenet skill is experimental and needs a viem fork.
 - Grant and program details can change. Confirm them on the linked forms before applying.
 
 ## License
