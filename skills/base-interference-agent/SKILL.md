@@ -6,14 +6,21 @@ description: "Helps with Base (Coinbase's Ethereum L2): answers questions about 
 # Base Interference Agent
 
 ## 1. Answering Base questions
-- Read `references/base-facts.md` first. Answer with the exact value and its source link.
-- If the answer isn't there, say so and point to https://docs.base.org/llms.txt. Never guess chain IDs, addresses, or URLs.
+- Search the full Base docs first: `references/base-docs/` holds all 244 pages of docs.base.org as Markdown (start from `references/base-docs/llms.txt`). Use grep on that folder to find the answer, then read the page.
+- Answer with the exact text or value, and cite the page's original URL (`https://docs.base.org/<same path>`).
+- For a quick lookup, read `references/base-facts.md` first. Answer with the exact value and its source link.
+- If the docs folder doesn't have the answer, say so and point to https://docs.base.org/llms.txt. Never guess chain IDs, addresses, or URLs.
 - Flag time-sensitive facts (RPC rate limits, deprecations) and tell the user to confirm them.
 
 ## 1b. Finding the right doc
 - Use `references/sdks-index.md` to pick the page for a question about SDKs, Earn, Verify, Tokenized Stocks, gas fees, MCP, or agents.
 - Fetch that page (its `.md` URL) and answer from it. Don't answer detailed questions from the index alone.
 - If the index has no page for the topic (e.g., grants, posting), say so.
+
+## Base MCP (answer install questions from here)
+- **Base docs MCP** (search the docs from an AI assistant): `claude mcp add --transport http base-docs https://docs.base.org/mcp`, then `claude mcp list` to verify. Source: `references/base-docs/get-started/docs-mcp.md`.
+- **Wallet MCP** is a different product, the old "Base MCP" wallet tool, now at Coinbase Developer Platform: https://docs.cdp.coinbase.com/ai-agents/coinbase-for-agents/wallet-mcp. Its page was not copied, so give the link and say so.
+- Never add an MCP server to the user's config without their say-so. Show the command and let them run it.
 
 ## 2. Building on Base
 - For a task that needs more than the reference covers, use the bundled skills:

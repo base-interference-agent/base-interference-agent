@@ -1,0 +1,135 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.base.org/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+> ## Agent Instructions
+> For the current source of truth, read https://docs.base.org/llms.txt and connect the Base docs MCP server at https://docs.base.org/mcp.
+
+# Base Builder Codes
+
+> Attribute onchain activity to your app, wallet or agent with Builder Codes.
+
+Base Builder Codes are unique identifiers (e.g. `bc_b7k3p9da`) that attribute onchain activity to your app, wallet or agent. You append your code to transactions with an [ERC-8021](https://eip.tools/eip/8021) data suffix, and the code is read from transaction calldata to attribute that activity to you.
+
+Each code has offchain metadata, such as your app's name and site, which you manage in Base Dashboard.
+
+> [!TIP]
+>
+> Get your Builder Code by registering a project on [Base Dashboard](https://dashboard.base.org/?utm_source=docs). You can find your code under **Settings** → **Project Settings** → **Builder Code**.
+
+> [!WARNING]
+>
+> Use Builder Codes for attribution and analytics only. Don't build payouts, revenue splits or other app logic on the onchain Builder Codes registry. Minting codes onchain is currently paused, so your code may not be registered onchain. Attribution doesn't depend on the registry, and all activity that carries your code is still tracked. Payout addresses aren't set for any code, minted or not.
+
+## Integration Guides
+
+> [card] [For App Developers](https://docs.base.org/specifications/builder-codes/for-app-developers.md)
+>
+> Integrate Builder Codes using Wagmi or Viem
+
+> [card] [For Wallet Developers](https://docs.base.org/specifications/builder-codes/for-wallet-developers.md)
+>
+> Implement the dataSuffix capability
+
+> [card] [For Agent Developers](https://docs.base.org/specifications/builder-codes/for-agent-developers.md)
+>
+> Attribute your AI agent's transactions via the API
+
+## Benefits
+
+* **Rewards:** If your app drives transactions, Builder Codes let Base automatically attribute that usage back to you, unlocking rewards as the program expands.
+* **Analytics:** Base Dashboard shows spot trading volume, borrow TVL and lending TVL derived from your Builder Code activity. To measure users, retention, conversion and the ETH or USDC volume your attributed transactions move yourself, see [Track User Analytics](https://docs.base.org/specifications/builder-codes/for-app-developers.md#track-user-analytics).
+* **Visibility:** Apps with Builder Codes can show up in discovery surfaces like App Leaderboards, Base App store, and ecosystem spotlights.
+
+## FAQ
+
+### Is My Builder Code Registered Onchain?
+
+**Not necessarily.** Your code is issued as soon as you register a project in Base Dashboard or through the agent registration API, but minting codes to the onchain registry is currently paused. Attribution doesn't depend on the registry: all onchain activity that carries your code is still tracked, so no data is lost.
+
+To check, call `isRegistered` with your code on the Builder Codes registry contract on Base Mainnet (`0x000000BC7E6457e610fe52Dcc0ca5b3ce59C8E80`), for example from the contract's **Read Contract** tab on Basescan. If your code isn't minted, `isRegistered` returns `false` and `payoutAddress` reverts with `Unregistered`. Don't treat either result as a sign that your code is invalid or that attribution failed.
+
+### Can I Use the Payout Address to Route Revenue?
+
+**No.** Payout addresses aren't set for any Builder Code, minted or not, and the field is unused. Don't read it to route fees or revenue splits: for a code that isn't minted, `payoutAddress` reverts instead of returning an address, so a split that depends on it fails or silently falls back to another recipient. Track your attributed activity with Builder Codes, and handle payments to your app through a separate mechanism.
+
+### Do I Need to Modify My Smart Contracts?
+
+**No.** The attribution suffix is appended to the end of transaction calldata. Smart contracts execute normally and ignore the extra data. Attribution is extracted by offchain indexers after the fact.
+
+This means:
+
+* Any existing smart contract automatically supports ERC-8021
+* No upgrades or redeployments required
+* Zero impact on contract execution
+
+### How Much Additional Gas Do Builder Codes Cost?
+
+The ERC-8021 suffix adds a negligible amount of gas to each transaction at 16 gas per non-zero byte.
+
+### Will Builder Codes Expose My Identity?
+
+**No.** Builder Codes only associate transactions with your application—they don't expose any wallet information that isn't already public onchain.
+
+### Can I Use ERC-8021 with Externally Owned Accounts (EOAs)?
+
+**Yes.** ERC-8021 works with both EOAs and smart contract wallets.
+
+### How Do I Verify That My Transaction Was Properly Attributed?
+
+**1. Use a Block Explorer (Basescan, Etherscan, etc.)**
+
+* Find your transaction hash
+* View the input data field
+* Verify the last 16 bytes are the `8021` repeating
+* Decode the suffix to confirm your Builder Code is present
+
+**2. Open Source Tools**
+
+* Use the [Builder Code Validation](https://builder-code-checker.vercel.app/) tool
+* Select transaction type
+* Enter the transaction or UserOperation hash
+* Click the **Check Attribution** button
+
+### Which Wallets Currently Support ERC-8021?
+
+**EOAs:**
+
+All EOA wallets support `dataSuffix` by default.
+
+**Smart Wallets:**
+
+Wallets supporting ERC-5792 can use the `DataSuffixCapability` for clean suffix appending.
+
+> [accordion] Example Code
+>
+> ```javascript Wallet send calls with attribution lines expandable wrap theme={null}
+> await wallet.sendCalls({
+>   calls: [
+>     // your transaction calls
+>   ],
+>   capabilities: {
+>     dataSuffix: {
+>       value: "0x07626173656170700080218021802180218021802180218021",
+>       optional: true
+>     }
+>   }
+> });
+> ```
+
+**Embedded Wallets:**
+
+* **Privy** - Embedded wallet solution with ERC-8021 capability
+* **Turnkey** - Infrastructure for programmatic wallets
+
+## Additional Resources
+
+* [Official ERC-8021 Proposal](https://eip.tools/eip/8021)
+* [Builder Code Validation Tool](https://builder-code-checker.vercel.app/)
+
+## Give Feedback!
+
+> [!NOTE]
+>
+> Base is constantly working to improve the Builder Codes experience. If you
+> have any feedback, please [send the team your feedback](https://t.co/zwvtmXXzGz).

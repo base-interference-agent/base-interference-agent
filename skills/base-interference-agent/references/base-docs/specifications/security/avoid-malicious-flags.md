@@ -1,0 +1,38 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.base.org/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+> ## Agent Instructions
+> For the current source of truth, read https://docs.base.org/llms.txt and connect the Base docs MCP server at https://docs.base.org/mcp.
+
+# How to Avoid Getting Your App Flagged as Malicious
+
+> Best practices for keeping wallets and security tools from flagging your app as malicious, and how to report a false positive.
+
+Ensuring that your app is perceived as trustworthy and not flagged as malicious requires attention to best practices. Here’s a quick guide on how to build a secure and compliant app from day one.
+
+## 1. Verify and Reduce the Risk of Your Smart Contract
+
+* **Verify Smart Contract**: Ensure that the source code of your contracts is verified and publicly available through a block explorer listed in the [Builder Stack](https://docs.base.org/get-started/builder-stack.md). For example, you can verify a contract on [Etherscan](https://etherscan.io/verifyContract) or [Basescan](https://basescan.org/verifyContract) under “Verify Contract”.
+* **Limit Exposure of User Funds**: Design your contracts to minimize the exposure of user funds. Use efficient design to reduce any unnecessary risk. For example, request the minimum amount needed to fulfill the transaction.
+
+## 2. Submit a Verification Request
+
+After verifying your smart contract, consider [submitting a verification request](https://report.blockaid.io/). This step helps ensure that your app is recognized as safe and verified by trusted sources in the ecosystem.
+
+## 3. Follow App Best Practices
+
+* **Accessibility Across Regions**: Avoid geo-blocking or access restrictions that prevent certain regions or countries from accessing your app. Depending on legal or compliance reasons, this may be necessary which you can indicate in your verification request submission.
+* **Consistent Behavior**: Avoid rapid or unexplained changes in UI that can make users feel uncertain about the app’s reliability.
+* **Transparent Onchain Interactions**: Make sure your app’s onchain interactions are clear and match the UI actions. For example, a “Mint” button should clearly emit a mint transaction.
+* **Standard Sign-in Methods**: Provide all standard connection methods for users to sign in, such as WalletConnect / Coinbase Wallet SDK or popular browser extension wallets.
+* **Audit Your Contracts**: Have your contracts audited by a reputable firm. Publish the audit report and provide a reference link so users can easily find it. Audits show that you’ve taken extra steps to secure your smart contracts.
+
+By following these recommendations, you’ll significantly reduce the chances of your app being flagged as malicious and foster a secure and trustworthy environment for your users.
+
+***
+
+**Still having trouble?**
+Coinbase Wallet may report false positives when flagging apps. To avoid false positives, please make sure you have completed the recommended actions above. If your app is still flagged as suspicious or malicious, [report it to Blockaid](https://report.blockaid.io/mistake).
+
+***

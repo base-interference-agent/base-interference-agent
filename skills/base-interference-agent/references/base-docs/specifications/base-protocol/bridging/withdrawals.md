@@ -1,0 +1,263 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.base.org/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+> ## Agent Instructions
+> For the current source of truth, read https://docs.base.org/llms.txt and connect the Base docs MCP server at https://docs.base.org/mcp.
+
+# Withdrawals
+
+> How withdrawals work on Base — the standard 3-step flow, the finalization window (5 days, or 1 day with TEE and ZK proofs), faster options, and the full protocol specification.
+
+[g-deposits]: https://docs.base.org/specifications/reference/glossary.md#deposits
+
+[g-withdrawal]: https://docs.base.org/specifications/reference/glossary.md#withdrawal
+
+[g-relayer]: https://docs.base.org/specifications/reference/glossary.md#withdrawals
+
+[g-execution-engine]: https://docs.base.org/specifications/reference/glossary.md#execution-engine
+
+A canonical withdrawal is a cross-domain transaction initiated on Base and finalized on Ethereum. Canonical withdrawals can transfer ETH, bridge supported ERC-20 tokens, or send a message from Base to an L1 contract. The flow has three stages:
+
+1. **Initiate on Base:** the withdrawal transaction is sent on Base. This records the withdrawal message in the `L2ToL1MessagePasser` contract.
+2. **Prove on Ethereum:** after the relevant Base state has been posted to Ethereum, anyone can submit a proof to the `OptimismPortal` contract showing that the withdrawal message exists on Base.
+3. **Finalize on Ethereum:** after the finalization window has passed, anyone can finalize the withdrawal on Ethereum. Finalization releases the assets or relays the message to the target contract.
+
+> [!NOTE]
+>
+> Canonical withdrawals to Ethereum can be finalized only after the dispute game for the output root they are proven against has passed its finalization window. Since the [Beryl upgrade](https://docs.base.org/upgrades/beryl/reducing-canonical-withdrawal-delay.md), that window is 5 days for a single-proof dispute game and 1 day on the dual-proof fast path, when both a TEE proof and a ZK proof back the same proposal. The window gives network participants time to dispute an invalid output root before withdrawals that depend on it can be finalized.
+>
+> The `OptimismPortal` also enforces a proof maturity delay (`proofMaturityDelaySeconds`): 1 day on Base Mainnet and 0 on Base Sepolia. It starts when the withdrawal is proven and runs at the same time as the game's finalization window, so a withdrawal can be finalized once both have passed. It adds time only when the withdrawal is proven less than 1 day before the game's window ends, for example when it is proven late against a game on the 1-day fast path, or against a game whose window has already passed.
+>
+> Most of the total time from initiating a withdrawal on Base to receiving funds on Ethereum is the finalization window. Waiting for the relevant Base state to be proposed on Ethereum usually adds only about 20 to 60 minutes, plus the time to submit the prove and finalize transactions. See [Transaction Finality](https://docs.base.org/specifications/transactions/transaction-finality.md#finality-for-withdrawal-transactions) for how withdrawal finality differs from ordinary Base transaction finality.
+
+Some third-party bridge providers offer faster withdrawals by using liquidity, relayers, or market makers to give users funds before the canonical withdrawal has fully finalized. These services do not shorten the protocol's canonical finalization window. See [Fast Bridges](https://docs.base.org/base-chain/network-information/ecosystem-bridges.md#fast-bridges) for providers and [Compare Bridge Types](https://docs.base.org/base-chain/network-information/ecosystem-bridges.md#compare-bridge-types) for how they differ from the standard bridge.
+
+## Overview
+
+[Withdrawals][g-withdrawal] are cross domain transactions which are initiated on L2, and finalized by a transaction
+executed on L1. Notably, withdrawals may be used by an L2 account to call an L1 contract, or to transfer ETH from
+an L2 account to an L1 account.
+
+**Vocabulary note**: *withdrawal* can refer to the transaction at various stages of the process, but we introduce
+more specific terms to differentiate:
+
+* A *withdrawal initiating transaction* refers specifically to a transaction on L2 sent to the Withdrawals predeploy.
+* A *withdrawal proving transaction* refers specifically to an L1 transaction
+  which proves the withdrawal is correct (that it has been included in a merkle
+  tree whose root is committed to by a dispute game on L1).
+* A *withdrawal finalizing transaction* refers specifically to an L1 transaction which finalizes and relays the
+  withdrawal.
+
+Withdrawals are initiated on L2 via a call to the Message Passer predeploy contract, which records the important
+properties of the message in its storage.
+Withdrawals are proven on L1 via a call to the `OptimismPortal`, which proves the inclusion of this withdrawal message.
+Withdrawals are finalized on L1 via a call to the `OptimismPortal` contract,
+which verifies that the proof maturity delay has passed since the withdrawal was proven and that the
+dispute game it was proven against is now a valid claim.
+
+In this way, withdrawals are different from [deposits][g-deposits] which make use of a special transaction type in the
+[execution engine][g-execution-engine] client. Rather, withdrawals transaction must use smart contracts on L1 for
+finalization.
+
+## Withdrawal Flow
+
+We first describe the end to end flow of initiating and finalizing a withdrawal:
+
+### On L2
+
+An L2 account sends a withdrawal message (and possibly also ETH) to the `L2ToL1MessagePasser` predeploy contract.
+This is a very simple contract that stores the hash of the withdrawal data.
+
+### On L1
+
+1. A [relayer][g-relayer] submits a withdrawal proving transaction with the required inputs
+   to the `OptimismPortal` contract.
+   The relayer is not necessarily the same entity which initiated the withdrawal on L2.
+   These inputs include the withdrawal transaction data, inclusion proofs, and the index of a dispute game in the
+   `DisputeGameFactory`. The game's root claim is an L2 output root that commits to the withdrawal as registered
+   on L2. On Base, these games are [`AggregateVerifier`](https://docs.base.org/specifications/base-protocol/proofs/proof-contracts) games.
+2. The `OptimismPortal` contract looks up the game in the `DisputeGameFactory` and checks through the
+   `AnchorStateRegistry` that the game is proper and of the respected game type, and that it has not resolved in
+   favor of a challenger. It then verifies the output root proof against the game's root claim and the withdrawal's
+   inclusion in the `L2ToL1MessagePasser` storage root.
+3. If proof verification fails, the call reverts. Otherwise the game and the proof timestamp are recorded for the
+   proof submitter. A withdrawal can be re-proven, for example against a different game if the first one is
+   invalidated; re-proving resets that submitter's proof timestamp.
+4. The dispute game runs its finalization window: 5 days for a single-proof game, or 1 day when both TEE and ZK
+   proofs back the proposal (see [Beryl](https://docs.base.org/upgrades/beryl/reducing-canonical-withdrawal-delay.md)). During this window,
+   a challenger can dispute an invalid root claim.
+5. Once the game's claim is valid and the proof maturity delay has passed, a relayer submits a withdrawal
+   finalizing transaction to the `OptimismPortal` contract.
+   The relayer doesn't need to be the same entity that initiated the withdrawal on L2.
+6. The `OptimismPortal` contract receives the withdrawal transaction data and verifies that the withdrawal has
+   been proven, that at least `proofMaturityDelaySeconds` have passed since it was proven, and that
+   `AnchorStateRegistry.isGameClaimValid()` returns true for the game it was proven against.
+   The proof maturity delay and the game's finalization window are checked independently, so the earliest
+   finalization time is whichever of the two ends later.
+7. If the requirements are not met, the call reverts. Otherwise the call is forwarded, and the hash is recorded to
+   prevent it from being replayed.
+
+## The L2ToL1MessagePasser Contract
+
+A withdrawal is initiated by calling the L2ToL1MessagePasser contract's `initiateWithdrawal` function.
+The L2ToL1MessagePasser is a simple predeploy contract at `0x4200000000000000000000000000000000000016`
+which stores messages to be withdrawn.
+
+```js L2ToL1MessagePasser.sol lines wrap expandable theme={null}
+interface L2ToL1MessagePasser {
+    event MessagePassed(
+        uint256 indexed nonce, // this is a global nonce value for all withdrawal messages
+        address indexed sender,
+        address indexed target,
+        uint256 value,
+        uint256 gasLimit,
+        bytes data,
+        bytes32 withdrawalHash
+    );
+
+    event WithdrawerBalanceBurnt(uint256 indexed amount);
+
+    function burn() external;
+
+    function initiateWithdrawal(address _target, uint256 _gasLimit, bytes memory _data) payable external;
+
+    function messageNonce() public view returns (uint256);
+
+    function sentMessages(bytes32) view external returns (bool);
+}
+
+```
+
+The `MessagePassed` event includes all of the data that is hashed and
+stored in the `sentMessages` mapping, as well as the hash itself.
+
+### Addresses Are Not Aliased on Withdrawals
+
+When a contract makes a deposit, the sender's address is [aliased](https://docs.base.org/specifications/base-protocol/bridging/deposits.md#address-aliasing). The same is not true
+of withdrawals, which do not modify the sender's address. The difference is that:
+
+* on L2, the deposit sender's address is returned by the `CALLER` opcode, meaning a contract cannot easily tell if the
+  call originated on L1 or L2, whereas
+* on L1, the withdrawal sender's address is accessed by calling the `l2Sender()` function on the `OptimismPortal`
+  contract.
+
+Calling `l2Sender()` removes any ambiguity about which domain the call originated from. Still, developers will need to
+recognize that having the same address does not imply that a contract on L2 will behave the same as a contract on L1.
+
+## The Optimism Portal Contract
+
+The Optimism Portal serves as both the entry and exit point to the Base L2. It is a contract which inherits from
+the [OptimismPortal](https://docs.base.org/specifications/base-protocol/bridging/deposits.md#deposit-contract) contract, and in addition provides the following interface for
+withdrawals:
+
+* [`WithdrawalTransaction` type]
+* [`OutputRootProof` type]
+
+```js OptimismPortal.sol lines wrap expandable theme={null}
+interface OptimismPortal2 {
+
+    event WithdrawalProven(bytes32 indexed withdrawalHash, address indexed from, address indexed to);
+
+    event WithdrawalProvenExtension1(bytes32 indexed withdrawalHash, address indexed proofSubmitter);
+
+    event WithdrawalFinalized(bytes32 indexed withdrawalHash, bool success);
+
+    function l2Sender() external view returns (address);
+
+    function proofMaturityDelaySeconds() external view returns (uint256);
+
+    function proveWithdrawalTransaction(
+        Types.WithdrawalTransaction memory _tx,
+        uint256 _disputeGameIndex,
+        Types.OutputRootProof calldata _outputRootProof,
+        bytes[] calldata _withdrawalProof
+    ) external;
+
+    function finalizeWithdrawalTransaction(
+        Types.WithdrawalTransaction memory _tx
+    ) external;
+
+    function finalizeWithdrawalTransactionExternalProof(
+        Types.WithdrawalTransaction memory _tx,
+        address _proofSubmitter
+    ) external;
+
+    function checkWithdrawal(bytes32 _withdrawalHash, address _proofSubmitter) external view;
+}
+```
+
+## Withdrawal Verification and Finalization
+
+The following inputs are required to prove and finalize a withdrawal:
+
+* Withdrawal transaction data:
+  * `nonce`: Nonce for the provided message.
+  * `sender`: Message sender address on L2.
+  * `target`: Target address on L1.
+  * `value`: ETH to send to the target.
+  * `data`: Data to send to the target.
+  * `gasLimit`: Gas to be forwarded to the target.
+* Proof and verification data:
+  * `disputeGameIndex`: The index in the `DisputeGameFactory` of the dispute game whose root claim is the applicable output root.
+  * `outputRootProof`: Four `bytes32` values which are used to derive the output root.
+  * `withdrawalProof`: An inclusion proof for the given withdrawal in the L2ToL1MessagePasser contract.
+
+To prove a withdrawal, these inputs must satisfy the following conditions:
+
+1. The game at `disputeGameIndex` is proper and respected according to the `AnchorStateRegistry`, and has not
+   resolved with `CHALLENGER_WINS`.
+2. The keccak256 hash of the `outputRootProof` values is equal to the game's root claim.
+3. The `withdrawalProof` is a valid inclusion proof demonstrating that a hash of the Withdrawal transaction data
+   is contained in the storage of the L2ToL1MessagePasser contract on L2.
+
+To finalize a withdrawal, the following conditions must also hold:
+
+1. The withdrawal has been proven by the proof submitter and has not already been finalized.
+2. More than `proofMaturityDelaySeconds` have passed since the withdrawal was proven.
+3. `AnchorStateRegistry.isGameClaimValid()` returns true for the game the withdrawal was proven against. This
+   requires the game to have resolved with `DEFENDER_WINS` after its finalization window.
+
+## Security Considerations
+
+### Key Properties of Withdrawal Verification
+
+1. It should not be possible to 'double spend' a withdrawal, ie. to relay a withdrawal on L1 which does not
+   correspond to a message initiated on L2. For reference, see [this writeup][polygon-dbl-spend] of a vulnerability
+   of this type found on Polygon.
+
+   [polygon-dbl-spend]: https://gerhard-wagner.medium.com/double-spending-bug-in-polygons-plasma-bridge-2e0954ccadf1
+
+2. For each withdrawal initiated on L2 (i.e. with a unique `messageNonce()`), the following properties must hold:
+   1. It should only be possible to prove the withdrawal once, unless the outputRoot for the withdrawal
+      has changed.
+   2. It should only be possible to finalize the withdrawal once.
+   3. It should not be possible to relay the message with any of its fields modified, ie.
+      1. Modifying the `sender` field would enable a 'spoofing' attack.
+      2. Modifying the `target`, `data`, or `value` fields would enable an attacker to dangerously change the
+         intended outcome of the withdrawal.
+      3. Modifying the `gasLimit` could make the cost of relaying too high, or allow the relayer to cause execution
+         to fail (out of gas) in the `target`.
+
+### Handling Successfully Verified Messages That Fail When Relayed
+
+If the execution of the relayed call fails in the `target` contract, it is unfortunately not possible to determine
+whether or not it was 'supposed' to fail, and whether or not it should be 'replayable'. For this reason, and to
+minimize complexity, we have not provided any replay functionality, this may be implemented in external utility
+contracts if desired.
+
+[`WithdrawalTransaction` type]: https://github.com/ethereum-optimism/optimism/blob/08daf8dbd38c9ffdbd18fc9a211c227606cdb0ad/packages/contracts-bedrock/src/libraries/Types.sol#L62-L69
+
+[`OutputRootProof` type]: https://github.com/ethereum-optimism/optimism/blob/08daf8dbd38c9ffdbd18fc9a211c227606cdb0ad/packages/contracts-bedrock/src/libraries/Types.sol#L25-L30
+
+### OptimismPortal Can Send Arbitrary Messages on L1
+
+The `L2ToL1MessagePasser` contract's `initiateWithdrawal` function accepts a `_target` address and `_data` bytes,
+which is passed to a `CALL` opcode on L1 when `finalizeWithdrawalTransaction` is called after the withdrawal
+becomes finalizable. This means that, by design, the `OptimismPortal` contract can be used to send arbitrary transactions on
+the L1, with the `OptimismPortal` as the `msg.sender`.
+
+This means users of the `OptimismPortal` contract should be careful what permissions they grant to the portal.
+For example, any ERC20 tokens mistakenly sent to the `OptimismPortal` contract are essentially lost, as they can
+be claimed by anybody that pre-approves transfers of this token out of the portal, using the L2 to initiate the
+approval and the L1 to prove and finalize the approval (after the finalization window).

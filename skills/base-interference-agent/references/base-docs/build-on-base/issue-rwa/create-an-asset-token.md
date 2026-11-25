@@ -1,0 +1,93 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.base.org/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+> ## Agent Instructions
+> For the current source of truth, read https://docs.base.org/llms.txt and connect the Base docs MCP server at https://docs.base.org/mcp.
+
+# Create an Asset Token
+
+> Create a six-decimal B20 Asset token with issuer roles, a supply ceiling, and issuer-defined metadata. This example configures a stock token.
+
+Use the [B20 Asset variant](https://docs.base.org/specifications/b20/concepts/token-types.md#4-asset) to represent a class of tokenized shares with configurable precision, issuer roles, supply controls, and metadata. This example creates Example Corp Class A (`EXM`) with six decimals.
+
+> [!NOTE]
+>
+> Real-world asset (RWA) tokenization is one of many use cases for the [B20 Asset standard](https://docs.base.org/specifications/b20/concepts/token-types.md#4-asset). The examples on this page use a stock token for illustration; the same flows apply to other asset types.
+>
+> Tokenized securities examples shown for illustration. Base is a general-purpose blockchain; issuance and compliance are the responsibility of the issuer under applicable law.
+
+> [!NOTE]
+>
+> New to B20? See the [B20 Token Standard](https://docs.base.org/build-on-base/issue-rwa/create-an-asset-token.md) for the concepts and a full launch walkthrough. These samples target `base-std@1505323`, `viem@2.55.11`, and Base Foundry `v1.1.1`.
+
+## Create and Verify the Stock Token
+
+Choose the **Asset** variant when you need configurable decimals, announcements, a scheduled UI multiplier, extra metadata, or `batchMint`. Asset decimals must be in the range `[6, 18]`; values outside that range revert `InvalidDecimals`. The type is sealed into the token address at creation and cannot change.
+
+[`createB20`](https://docs.base.org/specifications/b20/reference/interfaces/ib20-factory/create-b20) requires no role or allowlist at the protocol level. Any account can create an Asset token once the B20 Asset variant is active in the [Activation Registry](https://docs.base.org/specifications/b20/reference/interfaces/i-activation-registry/is-activated), and the variant is active on Base Mainnet. The Factory keeps no access to the token after creation; the issuer configures and controls it.
+
+```typescript TypeScript lines wrap expandable highlight={15} theme={null}
+import { encodeAbiParameters, encodeFunctionData, keccak256, parseAbiParameters, parseEventLogs, stringToBytes } from "viem";
+import { account } from "../../shared/clients.js";
+import { B20_FACTORY, b20Abi, factoryAbi, role } from "../abi.js";
+import { sendContract } from "../write.js";
+
+export async function createStockToken() {
+  const salt = keccak256(stringToBytes("example-class-a-v1"));
+  const params = encodeAbiParameters(
+    parseAbiParameters("(uint8 version,string name,string symbol,address initialAdmin,uint8 decimals)"),
+    [{ version: 1, name: "Example Corp Class A", symbol: "EXM", initialAdmin: account.address, decimals: 6 }],
+  );
+  const initCalls = ["MINT_ROLE", "BURN_BLOCKED_ROLE", "PAUSE_ROLE", "UNPAUSE_ROLE", "OPERATOR_ROLE"].map(
+    (name) => encodeFunctionData({ abi: b20Abi, functionName: "grantRole", args: [role(name), account.address] }),
+  );
+  const receipt = await sendContract({ address: B20_FACTORY, abi: factoryAbi, functionName: "createB20", args: [0, salt, params, initCalls] });
+  const [created] = parseEventLogs({ abi: factoryAbi, logs: receipt.logs, eventName: "B20Created" });
+  return created.args.token;
+}
+```
+
+```solidity Solidity lines wrap expandable highlight={1} theme={null}
+    function createStock(address admin) public returns (address token) {
+        B20FactoryLib.B20AssetRoleHolders memory holders = B20FactoryLib.B20AssetRoleHolders({
+            minter: admin,
+            burner: admin,
+            burnBlocker: admin,
+            pauser: admin,
+            unpauser: admin,
+            metadataAdmin: admin,
+            operator: admin
+        });
+        bytes[] memory settings = new bytes[](1);
+        settings[0] = B20FactoryLib.encodeUpdateSupplyCap(1_000_000e6);
+        token = StdPrecompiles.B20_FACTORY.createB20(
+            IB20Factory.B20Variant.ASSET,
+            keccak256("example-class-a-v1"),
+            B20FactoryLib.encodeAssetCreateParams("Example Corp Class A", "EXM", admin, 6),
+            B20FactoryLib.concat(B20FactoryLib.buildRoleGrants(holders), settings)
+        );
+    }
+```
+
+The factory assigns a deterministic address from `(variant, sender, salt)`. Address byte `[10]` selects which selectors that address accepts — `0x00` for Asset tokens. Reusing the same `(variant, sender, salt)` triple reverts `TokenAlreadyExists`. Optional `initCalls`, such as the role grants above, run on the new token in the same transaction. The factory drops access after `createB20` returns.
+
+See the [B20 token standard](https://docs.base.org/build-on-base/issue-rwa/create-an-asset-token.md) for the complete interface, roles, and policies.
+
+> [!TIP]
+>
+> The factory emits `B20Created` for the Asset variant and returns the deterministic token address.
+
+> [!WARNING]
+>
+> The supply cap is a technical ceiling, not a representation of authorized or outstanding shares.
+
+## See Also
+
+> [card] [Issue Shares](https://docs.base.org/build-on-base/issue-rwa/issue-units.md)
+>
+> Mint asset units to holders.
+
+> [card] [Restrict Eligible Holders](https://docs.base.org/build-on-base/issue-rwa/restrict-eligible-holders.md)
+>
+> Gate who can hold with policies.
