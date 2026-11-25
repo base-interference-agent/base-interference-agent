@@ -47,6 +47,12 @@ Rules for the key:
 - Flow: list vaults, deposit or borrow (the API returns unsigned calls), the user's wallet signs and submits them, then read positions. Withdrawals use an explicit slippage limit.
 - Borrowing carries liquidation risk. Always show the collateral, the borrow amount, and the liquidation risk, and get approval before any step. Yields and funds are exposed to protocol risk.
 
+## Buy and sell (KyberSwap)
+- Reference: `references/kyberswap/swap-api.md`. Use KyberSwap's Aggregator API on Base Mainnet (chain 8453).
+- No API key is needed for the public endpoint (3 requests per second). Recommend an API key for heavier use.
+- Flow: (1) get a route with `GET /base/api/v1/routes`, (2) build the unsigned transaction with `POST /base/api/v1/route/build` and an explicit `slippageTolerance`, (3) for a sell, approve the router first, (4) the user's wallet signs and sends it.
+- Show the route, amounts, minimum received, slippage, and router address, and get approval before the user signs. Re-quote if the route is more than 10 seconds old.
+
 ## o1 Launchpad API (quote, swap, create token, claims)
 - Reference: `references/o1-launchpad-api/`. Start with `launchpad/api/quickstart.md`, `launchpad/api/authentication.md`, and the endpoint pages under `launchpad/public-api/reference/`.
 - Proxy mode (optional): only if `LAUNCHPAD_PROXY_URL` is set in `.env`, send requests to `<LAUNCHPAD_PROXY_URL>/v1/...` with no key. The proxy adds the key on the server (see `proxy/README.md`). Don't ask for or look for a key in this mode.
