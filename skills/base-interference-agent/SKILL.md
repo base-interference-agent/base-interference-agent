@@ -21,6 +21,62 @@ Rules for the key:
 - Only read it from the environment at run time. Never print, log, commit, or paste it into a shared file.
 - Base Mainnet is the default. Set a maximum amount per transaction and require approval for each one.
 
+## 1. Answering Base questions
+- Search the full Base docs first: `references/base-docs/` holds all 244 pages of docs.base.org as Markdown (start from `references/base-docs/llms.txt`). Use grep on that folder to find the answer, then read the page.
+- Answer with the exact text or value, and cite the page's original URL (`https://docs.base.org/<same path>`).
+- For a quick lookup, read `references/base-facts.md` first. Answer with the exact value and its source link.
+- If the docs folder doesn't have the answer, say so and point to https://docs.base.org/llms.txt. Never guess chain IDs, addresses, or URLs.
+- Flag time-sensitive facts (RPC rate limits, deprecations) and tell the user to confirm them.
+
+## 1b. Finding the right doc
+- Use `references/sdks-index.md` to pick the page for a question about SDKs, Earn, Verify, Tokenized Stocks, gas fees, MCP, or agents.
+- Fetch that page (its `.md` URL) and answer from it. Don't answer detailed questions from the index alone.
+- If the index has no page for the topic (e.g., grants, posting), say so.
+
+## Base MCP (answer install questions from here)
+- **Base docs MCP** (search the docs from an AI assistant): `claude mcp add --transport http base-docs https://docs.base.org/mcp`, then `claude mcp list` to verify. Source: `references/base-docs/get-started/docs-mcp.md`.
+- **Wallet MCP** (the old "Base MCP" wallet tool, now on Coinbase Developer Platform): server URL `https://wallet-mcp.coinbase.com`. Install steps for each client are in `references/cdp-docs/coinbase-for-agents/wallet-mcp/references/install.md`. Canonical page: https://docs.cdp.coinbase.com/ai-agents/coinbase-for-agents/wallet-mcp.
+- Other CDP pages for Base (Wallet MCP plugins, faucets, x402, smart accounts, delegated signing): see `references/cdp-docs/`.
+- Never add an MCP server to the user's config without their say-so. Show the command and let them run it.
+
+## o1 Exchange docs
+- `references/o1-docs/` holds all 121 pages of docs.o1.exchange (terminal, Launchpad, Earn, staking, token, and mobile). Start with `introduction.md`. Cite the original URL, `https://docs.o1.exchange/<same path>`.
+
+## x402 (pay for APIs, charge for yours)
+- Reference: `references/x402/x402-agent.md`. Start there for buyer and seller setup, and the spend rules.
+- The agent can pay for an x402 service only inside a session budget the user approves first. Payments are USDC on Base Mainnet. Check the network, asset, and per-request and session limits in code before signing. Log every payment.
+- For mainnet, use a production facilitator, not the public testnet one.
+
+## Approval workflow (for every money action)
+Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all follow the same steps:
+1. Gather: read the data (balances, prices, rates, vault details, collateral health). Use read-only APIs first.
+2. Plan: list every action in order, with the amount, token, counterparty or vault, fees, slippage, and the minimum or maximum result.
+3. Risk: for borrowing, show the collateral, loan-to-value, liquidation threshold, and what happens if prices move. For vaults, show the strategy, fees, and protocol risk. Never call an investment safe.
+4. Approve: ask the user to approve the full plan (or each step). Don't proceed on a vague "yes."
+5. Prepare: request unsigned transactions. Verify each one (recipient, amount, chain ID 8453) before signing.
+6. Sign: the user's wallet signs and sends. The agent never holds keys for these actions unless the user has set up `AGENT_WALLET_PRIVATE_KEY` and approved the specific plan.
+7. Verify: check the result on basescan.org and read the new position.
+- One prompt can start the whole flow, but every money step still needs approval.
+- No automatic trading, rebalancing, or borrowing without an approved plan.
+
+## Lending, borrowing, and vaults (Morpho)
+- Morpho docs index saved at `references/morpho/llms.txt`. Start there for any page.
+- Morpho's own MCP server (https://mcp.morpho.org/) returns data and unsigned transactions for a user's wallet to sign. Mention it as an option for users who want Morpho tools inside their agent.
+- Index vaults and strategies: show the vault, its curator, fees, past performance, and risks. Don't recommend a vault as an investment.
+- Borrowing USDC: follow `references/morpho/usdc-borrow-flow.md`. It needs a Morpho API key (`MORPHO_API_KEY`) for the Actions API. Follow the approval workflow above and show the liquidation price before approval.
+- Morpho Blue and Midnight markets have different rules. Read the matching guide in the index before preparing a transaction.
+
+## Tokens
+- BINT (Base Interference), Base Mainnet `0xb200000000000000000000231734d0c898f56201`: details and launch info in `references/tokens/bint.md`. Page: https://launch.o1.exchange/token/0xb200000000000000000000231734d0c898f56201?chain=8453
+
+## Lending and borrowing (Base Earn, Morpho)
+- Reference: `references/base-docs/sdks/base-earn/` (start with `overview.md`, `morpho-borrow.md`, `faq.md`).
+- The Base Earn API needs no API key. Read requests (vaults, positions) are open. Write requests need the app's builder code from https://dashboard.base.org.
+- Base URL: `https://api.base.org/earn/v1`.
+- Morpho: live through the Morpho API. Read data is public. Preparing transactions needs a Morpho API key. See `references/morpho/morpho-api.md`.
+- Flow: list vaults, deposit or borrow (the API returns unsigned calls), the user's wallet signs and submits them, then read positions. Withdrawals use an explicit slippage limit.
+- Borrowing carries liquidation risk. Always show the collateral, the borrow amount, and the liquidation risk, and get approval before any step. Yields and funds are exposed to protocol risk.
+
 ## Helping new Base users
 - Reference: `references/base-user-guide.md`. Use it for: adding Base to a wallet (chain 8453), getting ETH and USDC onto Base, what transactions cost, a safety checklist, and checking a transaction on basescan.org.
 - When a user is new to Base, give the wallet settings, the safety checklist, and the next step they asked about. Keep it short.
