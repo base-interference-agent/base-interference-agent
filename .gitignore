@@ -1,0 +1,9 @@
+# Secrets: never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*keystore*
+# Local build output from vibenet setup
+.viem-8130-src/
+node_modules/

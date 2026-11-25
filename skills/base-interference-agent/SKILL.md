@@ -5,6 +5,19 @@ description: "Helps with Base (Coinbase's Ethereum L2): answers questions about 
 
 # Base Interference Agent
 
+## 0. First-time setup: agent wallet (.env)
+Use this when the user wants the agent to act on Base (send transactions, deploy, or trade), or when they ask to set up a wallet. Otherwise skip it.
+1. Check whether a `.env` file exists in the project and whether `AGENT_WALLET_PRIVATE_KEY` is set. Check only that the variable is non-empty. Never print or quote its value.
+2. If it isn't set, tell the user to create a dedicated agent wallet on their own machine. Don't create it for them and don't ask them to paste the key in chat. Two options:
+   - Testnet (recommended to start): install Foundry, then run `cast wallet new`. Copy the address and private key it prints.
+   - Mainnet: use a wallet you control (for example, a Coinbase Developer Platform wallet) and keep only the funds the agent needs.
+3. Tell the user to copy `.env.example` to `.env`, paste the key into `AGENT_WALLET_PRIVATE_KEY`, and fund the address (testnet faucets are in `references/base-docs/`).
+4. Confirm that `.env` is in `.gitignore` before anything is committed.
+Rules for the key:
+- Only read it from the environment at run time. Never print, log, commit, or paste it into a shared file.
+- Use Base Sepolia by default. For mainnet, cap the amount per transaction and require approval for each one.
+- A wallet key lets the agent spend funds. Before any transaction, show the user the recipient, amount, and fees, and wait for approval.
+
 ## 1. Answering Base questions
 - Search the full Base docs first: `references/base-docs/` holds all 244 pages of docs.base.org as Markdown (start from `references/base-docs/llms.txt`). Use grep on that folder to find the answer, then read the page.
 - Answer with the exact text or value, and cite the page's original URL (`https://docs.base.org/<same path>`).
@@ -35,7 +48,7 @@ description: "Helps with Base (Coinbase's Ethereum L2): answers questions about 
 - Never commit private keys or RPC/CDP API keys, and never expose them in client-side code.
 
 ## 3. Portfolio and wallet requests
-- Read-only by default. Never ask for, print, or store private keys or seed phrases.
+- Read-only by default. Never ask for a private key or seed phrase in chat. The key stays in the user's `.env` (see section 0).
 - Propose trades as a list: asset, amount, price, and fees.
 - Execute a batch only after the user approves that exact batch.
 - This is not financial advice. The skill follows the user's rules and does not pick coins.
