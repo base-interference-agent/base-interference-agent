@@ -52,3 +52,9 @@ linked page (the `.md` URL) and answer from it.
 
 ## Not yet read in full
 Only the titles and URLs above were checked. Read the linked page before answering details.
+
+## Grants (source: builders.md and creators.md, read on the date of this commit)
+- **Builder Grant Program**: up to $5,000 in grants plus GTM and product support, for teams building on Base in one of six areas: prediction markets; token launchpads; DeFi 2.0 (lending, borrowing, looping, yield, vaults, tokenized equities); agents (commerce, x402, autonomous trading); new asset creation; consumer apps focused on transaction growth. Apply: https://forms.gle/urqjBJYJjR6Vqqre6
+  - The docs say grants are given selectively and that the first step is integrating Builder Codes: https://docs.base.org/specifications/builder-codes/overview.md
+- **Creator Grant Program** (for creators, not builders): up to $4,000 for creators already covering Base. Apply: https://forms.gle/sZ5cBADdXLfbbe1R8
+- Related, not grants: Base Ecosystem Fund (https://www.base.org/ecosystem-fund), Base Batches accelerator (https://www.base.org/batches), Builder Stack (https://docs.base.org/get-started/base-services-hub.md).
