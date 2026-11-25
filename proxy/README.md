@@ -1,5 +1,16 @@
 # o1 API proxy
 
+## Easiest: deploy on Render (no coding)
+1. Go to https://dashboard.render.com, sign in, and click **New > Blueprint**.
+2. Connect GitHub and pick the repo `base-interference-agent`.
+3. Render reads `proxy/render.yaml`. When it asks for `O1_API_KEY`, paste your key there. The key is stored only in Render.
+4. Click **Apply** and wait for the deploy to finish. Copy the URL Render gives you (for example, `https://o1-api-proxy.onrender.com`).
+5. Check it: open `<that URL>/healthz` in a browser. It should show `{"ok":true}`.
+6. In each user's `.env`, set `LAUNCHPAD_PROXY_URL=<that URL>`.
+
+Note: Render's free plan sleeps after inactivity, so the first request can be slow. Use a paid plan for steady use.
+
+
 Keeps the o1 Launchpad API key on a server you control. The skill calls this proxy, so users never see the key.
 
 ## Run
