@@ -48,3 +48,9 @@ End with a short report:
 ## Portfolio and wallet requests
 - Read-only by default. Never ask for or store private keys or seed phrases.
 - Propose trades as a list (asset, amount, price, fees). Execute only after the user approves each batch.
+
+## Bundled Base skills (from base/skills, MIT)
+Two more skills sit next to this one in `skills/`. Use them for the matching tasks:
+- `skills/build-on-base/`: network setup, Foundry deployment, Builder Codes attribution (ERC-8021), agent registration, and running a node.
+- `skills/vibenet/`: the Base devnet for EIP-8130 account abstraction, payer gas sponsorship, and 200ms blocks. It is experimental, and it needs a viem fork (see that skill).
+Credit and license: see `NOTICE.md`.
