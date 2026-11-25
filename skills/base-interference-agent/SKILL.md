@@ -47,6 +47,10 @@ Rules for the key:
 - Flow: list vaults, deposit or borrow (the API returns unsigned calls), the user's wallet signs and submits them, then read positions. Withdrawals use an explicit slippage limit.
 - Borrowing carries liquidation risk. Always show the collateral, the borrow amount, and the liquidation risk, and get approval before any step. Yields and funds are exposed to protocol risk.
 
+## Helping new Base users
+- Reference: `references/base-user-guide.md`. Use it for: adding Base to a wallet (chain 8453), getting ETH and USDC onto Base, what transactions cost, a safety checklist, and checking a transaction on basescan.org.
+- When a user is new to Base, give the wallet settings, the safety checklist, and the next step they asked about. Keep it short.
+
 ## Buy and sell (KyberSwap)
 - Reference: `references/kyberswap/swap-api.md`. Use KyberSwap's Aggregator API on Base Mainnet (chain 8453).
 - No API key is needed for the public endpoint (3 requests per second). Recommend an API key for heavier use.
