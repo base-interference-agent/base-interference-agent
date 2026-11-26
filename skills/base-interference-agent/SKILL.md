@@ -99,6 +99,10 @@ Rules for the key:
 - Test before deploy (`scripts/test-contracts.sh`), dry-run the deploy, and deploy only from the user's own machine.
 - Before real users: a professional audit, Builder Codes, and clear risk notes.
 
+## NFTs and audits
+- NFTs on Base (finding and checking collections, OpenSea trades and mints with approval, approval safety): `references/nfts/nfts-on-base.md`.
+- Contract audit help (checklist, test runs, automated tools to run on the user's machine, and what needs a professional auditor): `references/audit/audit-guide.md`. The agent can't audit a contract.
+
 ## Contract testing
 - `scripts/test-contracts.sh` compiles and tests the owner vault, bounty escrow, and job escrow on a local Base-compatible chain. It checks 20 flows and the bounty page's decoding. Nothing goes to mainnet.
 - Use it before telling a user a contract works, and after any change to a contract.
