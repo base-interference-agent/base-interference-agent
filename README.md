@@ -4,7 +4,7 @@
 
 This skill is for everyone building or using Base. It works as an AI agent for almost any Base task: asking questions, swapping, lending and borrowing, launching and trading tokens, building contracts, and checking stocks and portfolios. Every money action waits for your approval first.
 
-The first agent-launched token on o1 is **Base Interference ($BINT)**, on Base: https://launch.o1.exchange/token/0xb200000000000000000000231734d0c898f56201?chain=8453 (the project describes it as the first token launched by Claude; that's the owner's claim, not verified here).
+**Base Interference ($BINT)** is a token launched on o1, on Base: https://launch.o1.exchange/token/0xb200000000000000000000231734d0c898f56201?chain=8453. The project says it's the first token launched by an AI agent. That's their claim, and it isn't independently verified.
 
 Works with Claude Code, OpenAI Codex CLI, and other agents that support skill folders.
 
