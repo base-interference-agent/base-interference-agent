@@ -59,14 +59,14 @@ Rules for the key:
 
 ## Build jobs (milestone escrow)
 - A poster locks USDC in milestones for a build. A worker claims the job and submits a deliverable link for each milestone. The poster approves or disputes, and an arbiter resolves disputes. Refunds happen when a job is cancelled or a deadline passes with milestones never submitted.
-- Contract and steps: `vault/contracts/JobEscrow.sol` and `vault/README-job.md`.
+- Contract and steps: `vault/contracts/JobEscrow.sol` and `vault/README-job.md`. Each job sets a review window (1 to 90 days). If the poster doesn't approve or dispute a submitted milestone in time, the worker can release it.
 - Tested on a local Base-compatible chain (20 checks in `vault/test/run.mjs`). Not audited. A poster who never responds can leave submitted work locked. Tell users this before they fund a job.
 - Only the poster approves payment, and only the arbiter resolves disputes. The agent never releases funds on its own.
 
 ## Bounties (USDC escrow)
 - A poster locks USDC for a task, someone claims it, and the poster approves the payout, rejects the claim, or cancels for a refund. Only the poster moves the money.
 - Contract, flow, and deploy steps: `vault/` in the repo (`contracts/BountyEscrow.sol`, `README-bounty.md`). Its reference copy is in `references/vault/` if you add it there.
-- Tested on a local chain, not audited. Use small amounts. Each payout is the poster's decision, so the agent never releases funds on its own.
+- Tested on a local chain, not audited. Use small amounts. Each payout is the poster's decision. Trust model: the poster decides, and a claimant has no on-chain protection. The poster can reject a claim, but cannot cancel while one is active. For anything non-trivial, use the job escrow with an arbiter.
 
 ## Owner vault and Safe wallets
 - Owner vault (ERC-4626, USDC on Base, only the owner can deposit and withdraw): source and steps in `references/vault/` (`OwnerVault.sol`, `README.md`). The full project, with compile and deploy scripts, is in the repo's `vault/` folder.
@@ -95,8 +95,8 @@ Rules for the key:
 - `node scripts/preview-tx.mjs tx.json`: simulates a transaction and decodes approve, transfer, and transferFrom. Warns on unlimited approvals. Run it before the user signs.
 - `node scripts/portfolio.mjs <wallet> [cost-basis.json]`: ETH, USDC, and minted stock holdings with KyberSwap values and optional P&L.
 - `node scripts/bounty-board.mjs <escrow> [from-block]`: lists open bounties from a deployed BountyEscrow. Use the deploy block for full history. Public RPCs rate-limit log searches, so use a dedicated RPC (`BASE_RPC_URL`).
-- `node scripts/morpho-health.mjs <chain_id:market_id> [wallet] [warnBelowPct]`: warns when Morpho borrow positions are close to liquidation. Needs the user's own `MORPHO_API_KEY`.
-- `node scripts/o1-tracker.mjs [limit]`: trending Base launches on o1, with volume-spike flags. Needs the user's own `O1_API_KEY`.
+- `node scripts/morpho-health.mjs <chain_id:market_id> [wallet] [warnBelowPct]`: warns when Morpho borrow positions are close to liquidation. Needs the user's own `MORPHO_API_KEY` in `.env`.
+- `node scripts/o1-tracker.mjs`: current o1 Alpha tokens on Base, with on-chain names and symbols. No key needed.
 - `scripts/bounty-board.html`: a static page that lists open bounties from a BountyEscrow address, read-only. Open it in a browser.
 - Always show the user the script output before any money step, then follow the approval workflow.
 
@@ -129,6 +129,7 @@ Rules for the key:
 1. Wallet: run `scripts/create-wallet.py` once. Get the address with `node scripts/show-address.mjs`. Paste only the address into the chat.
 2. Agent: prepares the transaction as a small JSON file (`to`, `data`, `value`) and shows the preview.
 3. You: review it, then run `node scripts/send-approved-tx.mjs tx.json` (dry run: simulates, sends nothing). Run it again with `--confirm` only if you approve. Then it asks you to type SEND in your terminal. It refuses to send when no person is at an interactive terminal, so an agent can't finish it alone. It also refuses chains other than Base Mainnet and transactions that fail simulation.
+- The tools read `.env` from the folder you run them in, and print which file they read. Use `--env <path>` to choose another file.
 - The agent never signs, never sees the key, and never sends on its own. x402 payments use the same typed PAY confirmation.
 
 ## Approval workflow (for every money action)

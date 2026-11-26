@@ -94,8 +94,11 @@ ok("bounty: cannot cancel after payout");
 await mint("poster", 10); await approve("poster", bounty, 10);
 await write("poster", bounty, bountyAbi, "createBounty", [U(10), "second task"]);
 await write("worker", bounty, bountyAbi, "submitClaim", [1n]);
+await expectRevert("poster", bounty, bountyAbi, "cancel", [1n]);
+ok("bounty: cannot cancel while a claim is active");
 await write("poster", bounty, bountyAbi, "rejectClaim", [1n]);
 await write("arbiter", bounty, bountyAbi, "submitClaim", [1n]);
+await write("poster", bounty, bountyAbi, "rejectClaim", [1n]);
 await write("poster", bounty, bountyAbi, "cancel", [1n]);
 assert.equal(await bal(acct.poster.address), U(50)); // 40 left after vault withdraw, +50 +10 minted, 50 locked then refunded
 ok("bounty: reject then re-claim then cancel refunds poster");
@@ -105,7 +108,7 @@ const job = await deploy(jobArt, [usdc]);
 const jobAbi = jobArt.abi;
 await mint("poster", 100); await approve("poster", job, 100);
 let t = await now();
-await write("poster", job, jobAbi, "createJob", [[U(60), U(40)], BigInt(t + 86400), acct.arbiter.address, "build the app"]);
+await write("poster", job, jobAbi, "createJob", [[U(60), U(40)], BigInt(t + 86400), acct.arbiter.address, "build the app", 86400n]);
 assert.equal(await bal(job), U(100)); ok("job: poster locks 100 in 2 milestones");
 const workerBefore = await bal(acct.worker.address);
 await write("worker", job, jobAbi, "claimJob", [0n]);
@@ -129,7 +132,7 @@ assert.equal(info[4], false); ok("job: closed after all milestones settled");
 // Deadline refund
 t = await now();
 await mint("poster", 50); await approve("poster", job, 50);
-await write("poster", job, jobAbi, "createJob", [[U(30), U(20)], BigInt(t + 86400), acct.arbiter.address, "unclaimed build"]);
+await write("poster", job, jobAbi, "createJob", [[U(30), U(20)], BigInt(t + 86400), acct.arbiter.address, "unclaimed build", 86400n]);
 await rpc("evm_increaseTime", [2 * 86400]); await rpc("evm_mine");
 await expectRevert("worker", job, jobAbi, "claimJob", [1n]);
 ok("job: no claim after the deadline");
@@ -141,10 +144,27 @@ assert.equal(await bal(acct.poster.address), p2 + U(50)); ok("job: poster reclai
 // Cancel before claim
 t = await now();
 await mint("poster", 5); await approve("poster", job, 5);
-await write("poster", job, jobAbi, "createJob", [[U(5)], BigInt(t + 86400), acct.arbiter.address, "cancel me"]);
+await write("poster", job, jobAbi, "createJob", [[U(5)], BigInt(t + 86400), acct.arbiter.address, "cancel me", 86400n]);
 const p3 = await bal(acct.poster.address);
 await write("poster", job, jobAbi, "cancelUnclaimed", [2n]);
 assert.equal(await bal(acct.poster.address), p3 + U(5)); ok("job: cancel unclaimed job refunds poster");
+
+// Review window: worker can release a submitted milestone only after the window passes
+t = await now();
+await mint("poster", 10); await approve("poster", job, 10);
+await write("poster", job, jobAbi, "createJob", [[U(10)], BigInt(t + 86400), acct.arbiter.address, "review test", 86400n]);
+const jid = (await read(job, jobAbi, "nextId", [])) - 1n;
+await write("worker", job, jobAbi, "claimJob", [jid]);
+await write("worker", job, jobAbi, "submitMilestone", [jid, 0n, "https://example.com/review"]);
+await expectRevert("worker", job, jobAbi, "releaseAfterReview", [jid, 0n]);
+ok("job: worker cannot release before the review window ends");
+await rpc("evm_increaseTime", [86400 + 10]); await rpc("evm_mine");
+const w0 = await bal(acct.worker.address);
+await write("worker", job, jobAbi, "releaseAfterReview", [jid, 0n]);
+assert.equal(await bal(acct.worker.address), w0 + U(10)); ok("job: worker releases after the review window, paid 10");
+let badWindow = false;
+try { await write("poster", job, jobAbi, "createJob", [[U(1)], BigInt(t + 86400), acct.arbiter.address, "bad", 3600n]); } catch { badWindow = true; }
+assert.ok(badWindow); ok("job: review window below 1 day is refused");
 
 console.log(`\nAll ${passed} checks passed.`);
 await server.close();

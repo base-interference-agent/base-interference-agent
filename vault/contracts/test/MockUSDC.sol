@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity 0.8.24;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 /// Test-only stand-in for USDC (6 decimals). Never deploy this to mainnet.
 contract MockUSDC is ERC20 {

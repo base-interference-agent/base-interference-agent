@@ -5,16 +5,14 @@ For paying for a build in USDC, in milestones.
 **Unaudited.** Use small amounts until it has been reviewed.
 
 ## Flow
-1. **Poster** approves the escrow for the total USDC, then calls `createJob(amounts[], deadline, arbiter, details)`. Each entry in `amounts` is one milestone. The arbiter must be a different address from the poster.
+1. **Poster** approves the escrow for the total USDC, then calls `createJob(amounts[], deadline, arbiter, details, reviewWindow)`. The review window is 1 to 90 days. Each entry in `amounts` is one milestone. The arbiter must be a different address from the poster.
 2. **Worker** calls `claimJob(id)` before the deadline. One worker per job.
 3. **Worker** calls `submitMilestone(id, m, deliverable)` with a link or file hash.
 4. **Poster** calls `approveMilestone(id, m)` to pay, or `disputeMilestone(id, m)` to dispute.
 5. **Arbiter** calls `resolveDispute(id, m, payWorker)` to pay the worker or refund the poster.
-6. After the deadline, the poster calls `reclaimPending(id, m)` for milestones nobody submitted.
-7. The poster can call `cancelUnclaimed(id)` before anyone claims, to get everything back.
-
-## Known limit
-If the poster never approves or disputes a submitted milestone, that money stays locked. A review window that releases payment automatically would fix this. Tell me if you want it added.
+6. If the poster doesn't approve or dispute a submitted milestone within the review window, the worker calls `releaseAfterReview(id, m)`.
+7. After the deadline, the poster calls `reclaimPending(id, m)` for milestones nobody submitted.
+8. The poster can call `cancelUnclaimed(id)` before anyone claims, to get everything back.
 
 ## Deploy (on your computer)
 1. `npm install`, then `node scripts/compile-job.mjs`.

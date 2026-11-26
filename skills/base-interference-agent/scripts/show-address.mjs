@@ -8,8 +8,10 @@ import { fileURLToPath } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const req = createRequire(path.join(here, "../package.json"));
 const { privateKeyToAccount } = req("viem/accounts");
-const envFile = process.argv[2] || path.join(process.cwd(), ".env");
+const envArg = process.argv.indexOf("--env");
+const envFile = envArg >= 0 ? path.resolve(process.argv[envArg + 1]) : path.join(process.cwd(), ".env");
+console.error("Reading " + envFile);
 const line = fs.existsSync(envFile) ? fs.readFileSync(envFile, "utf8").split("\n").find((l) => l.startsWith("AGENT_WALLET_PRIVATE_KEY=")) : null;
 const key = line ? line.split("=")[1].trim() : "";
-if (!key) { console.error("No AGENT_WALLET_PRIVATE_KEY in " + envFile + ". Run scripts/create-wallet.py first."); process.exit(1); }
+if (!key) { console.error("No AGENT_WALLET_PRIVATE_KEY in " + envFile + ". Run create-wallet.py in this folder first, or pass --env <path>."); process.exit(1); }
 console.log(privateKeyToAccount(key.startsWith("0x") ? key : "0x" + key).address);

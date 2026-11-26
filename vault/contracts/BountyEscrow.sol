@@ -1,25 +1,30 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity 0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-/// USDC bounty escrow. The poster locks USDC, a claimant asks to do the task,
-/// and the poster approves the payout (or rejects the claim, or cancels for a refund).
-/// Only the poster can move money out. Unaudited: test with small amounts.
+/// USDC bounty escrow. The poster locks USDC, a claimant asks to do the task, and the poster
+/// approves the payout, rejects the claim, or cancels for a refund.
+/// TRUST MODEL: the poster decides. A claimant has no on-chain protection after submitting work.
+/// The poster can reject the claim and then cancel. For anything non-trivial, use JobEscrow
+/// (it has an arbiter and a review window).
+/// Asset must be a standard ERC-20 (for example USDC). Fee-on-transfer tokens are rejected.
+/// Unaudited: test with small amounts.
 contract BountyEscrow {
     using SafeERC20 for IERC20;
 
     struct Bounty {
         address poster;
         address claimant; // address(0) when nobody has claimed
-        uint256 amount;   // USDC base units (6 decimals)
-        bool open;        // false once paid out or cancelled
-        string details;   // short task description or link (keep it short)
+        uint256 amount;
+        bool open;
+        string details;
     }
 
     IERC20 public immutable usdc;
     uint256 public nextId;
+    uint256 private _lock = 1;
     mapping(uint256 => Bounty) public bounties;
 
     event BountyCreated(uint256 indexed id, address indexed poster, uint256 amount);
@@ -32,18 +37,29 @@ contract BountyEscrow {
     error NotOpen();
     error NoClaim();
     error ClaimExists();
+    error ClaimActive();
     error ZeroAmount();
+    error TransferAmountMismatch();
+    error Reentrant();
+
+    modifier nonReentrant() {
+        if (_lock != 1) revert Reentrant();
+        _lock = 2;
+        _;
+        _lock = 1;
+    }
 
     constructor(IERC20 usdc_) {
         usdc = usdc_;
     }
 
-    /// Lock `amount` USDC for a task. The poster must approve this contract first.
-    function createBounty(uint256 amount, string calldata details) external returns (uint256 id) {
+    function createBounty(uint256 amount, string calldata details) external nonReentrant returns (uint256 id) {
         if (amount == 0) revert ZeroAmount();
         id = nextId++;
         bounties[id] = Bounty(msg.sender, address(0), amount, true, details);
+        uint256 before = usdc.balanceOf(address(this));
         usdc.safeTransferFrom(msg.sender, address(this), amount);
+        if (usdc.balanceOf(address(this)) - before != amount) revert TransferAmountMismatch();
         emit BountyCreated(id, msg.sender, amount);
     }
 
@@ -67,7 +83,7 @@ contract BountyEscrow {
     }
 
     /// Poster approves the work and pays the claimant.
-    function approvePayout(uint256 id) external {
+    function approvePayout(uint256 id) external nonReentrant {
         Bounty storage b = bounties[id];
         if (msg.sender != b.poster) revert NotPoster();
         if (!b.open) revert NotOpen();
@@ -79,11 +95,13 @@ contract BountyEscrow {
         emit PaidOut(id, to, amount);
     }
 
-    /// Poster cancels an open bounty that hasn't been paid and gets the USDC back.
-    function cancel(uint256 id) external {
+    /// Poster cancels an open bounty with no active claim, and gets the USDC back.
+    /// To cancel after a claim, the poster must reject the claim first.
+    function cancel(uint256 id) external nonReentrant {
         Bounty storage b = bounties[id];
         if (msg.sender != b.poster) revert NotPoster();
         if (!b.open) revert NotOpen();
+        if (b.claimant != address(0)) revert ClaimActive();
         b.open = false;
         uint256 amount = b.amount;
         usdc.safeTransfer(b.poster, amount);

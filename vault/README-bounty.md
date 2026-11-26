@@ -18,3 +18,6 @@ The key is read from `.env` and never printed or sent to the chat.
 
 ## Tests
 Run `npm run test`. Covers create, claim, reject, re-claim, payout, and cancel on a local chain. Passing tests isn't an audit.
+
+## Trust model
+The poster decides. A claimant has no on-chain protection after submitting work. The poster can reject the claim, but can't cancel while a claim is active. Use the job escrow (with an arbiter) for anything non-trivial.

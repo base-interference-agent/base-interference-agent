@@ -12,6 +12,11 @@
  },
  {
   "inputs": [],
+  "name": "ClaimActive",
+  "type": "error"
+ },
+ {
+  "inputs": [],
   "name": "ClaimExists",
   "type": "error"
  },
@@ -31,6 +36,11 @@
   "type": "error"
  },
  {
+  "inputs": [],
+  "name": "Reentrant",
+  "type": "error"
+ },
+ {
   "inputs": [
    {
     "internalType": "address",
@@ -39,6 +49,11 @@
    }
   ],
   "name": "SafeERC20FailedOperation",
+  "type": "error"
+ },
+ {
+  "inputs": [],
+  "name": "TransferAmountMismatch",
   "type": "error"
  },
  {
