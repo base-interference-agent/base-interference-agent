@@ -42,6 +42,10 @@ Rules for the key:
 ## o1 Exchange docs
 - `references/o1-docs/` holds all 121 pages of docs.o1.exchange (terminal, Launchpad, Earn, staking, token, and mobile). Start with `introduction.md`. Cite the original URL, `https://docs.o1.exchange/<same path>`.
 
+## Tokenized stocks on Base
+- Contract addresses for each stock on base.org/stocks (NVDA, AAPL, MSFT, GOOGL, AMZN, META, TSLA, MSTR, SNDK, SPCX) are in `references/stocks/base-stocks.md`.
+- Always confirm an address on BaseScan before sending funds. Stock tokens have their own terms and risks.
+
 ## x402 (pay for APIs, charge for yours)
 - Reference: `references/x402/x402-agent.md`. Start there for buyer and seller setup, and the spend rules.
 - The agent can pay for an x402 service only inside a session budget the user approves first. Payments are USDC on Base Mainnet. Check the network, asset, and per-request and session limits in code before signing. Log every payment.
