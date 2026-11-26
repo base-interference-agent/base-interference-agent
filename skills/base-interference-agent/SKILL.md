@@ -84,6 +84,13 @@ Rules for the key:
 - Recurring or conditional requests (for example, "buy when the price drops 10%" or "rebalance every week") aren't approved in advance. Each trade is shown and approved when it comes up. Don't set up any background job that trades.
 - If the user is away when a condition is met, record it as a proposal and wait. Don't execute it.
 
+## Tools (scripts in `scripts/`, read-only, nothing is sent)
+- `node scripts/check-token.mjs <address>`: checks a token against Coinbase's 425-record stock list and the chain (symbol and decimals). Flags look-alikes. Run it before any swap or transfer.
+- `node scripts/preview-tx.mjs tx.json`: simulates a transaction and decodes approve, transfer, and transferFrom. Warns on unlimited approvals. Run it before the user signs.
+- `node scripts/portfolio.mjs <wallet> [cost-basis.json]`: ETH, USDC, and minted stock holdings with KyberSwap values and optional P&L.
+- `node scripts/bounty-board.mjs <escrow> [from-block]`: lists open bounties from a deployed BountyEscrow. Use the deploy block for full history. Public RPCs rate-limit log searches, so use a dedicated RPC (`BASE_RPC_URL`).
+- Always show the user the script output before any money step, then follow the approval workflow.
+
 ## Approval workflow (for every money action)
 Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all follow the same steps:
 1. Gather: read the data (balances, prices, rates, vault details, collateral health). Use read-only APIs first.
