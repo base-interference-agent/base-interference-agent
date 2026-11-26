@@ -8,11 +8,6 @@ This skill is for everyone building or using Base. It works as an AI agent for a
 
 **Verified on-chain:** the launch transaction succeeded on Base Mainnet, sent from creator wallet `0x5b1265a2c04956e1c9c581988f967824f1aede96`. That wallet is also the token's creator fee recipient.
 
-**The project's statements** (not independently verified):
-- The token was launched by a Claude agent.
-- The agent's wallet holds its own funds, and nobody has access to it.
-- The agent claims its fees itself, every day.
-- It is the first token launched by an agent on o1.
 
 Works with Claude Code, OpenAI Codex CLI, and other agents that support skill folders.
 
