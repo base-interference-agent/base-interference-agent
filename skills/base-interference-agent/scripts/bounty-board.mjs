@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 // Lists open bounties from a deployed BountyEscrow contract on Base Mainnet. Read-only.
 // Usage: node scripts/bounty-board.mjs <escrow address> [from-block]  (use the deploy block for full history)
-// Needs the vault project installed once: (cd ../../vault && npm install)
+// Needs the skill's packages installed once: npm install (in the skill folder)
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
-const vaultRequire = createRequire(path.join(here, "../../../vault/package.json"));
+const vaultRequire = createRequire(path.join(here, "../package.json"));
 const { createPublicClient, http, parseAbiItem, formatUnits } = vaultRequire("viem");
 const { base } = vaultRequire("viem/chains");
-const abi = JSON.parse(fs.readFileSync(path.join(here, "../../../vault/build/BountyEscrow.json"), "utf8")).abi;
+const abi = JSON.parse(fs.readFileSync(path.join(here, "../references/vault/BountyEscrow.abi.json"), "utf8"));
 const escrow = process.argv[2];
 if (!/^0x[a-fA-F0-9]{40}$/.test(escrow || "")) { console.error("Usage: node scripts/bounty-board.mjs <escrow address>"); process.exit(1); }
 const client = createPublicClient({ chain: base, transport: http(process.env.BASE_RPC_URL || "https://mainnet.base.org") });

@@ -11,7 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 const here = path.dirname(fileURLToPath(import.meta.url));
-const vaultRequire = createRequire(path.join(here, "../../../vault/package.json"));
+const vaultRequire = createRequire(path.join(here, "../package.json"));
 const { x402Client, wrapFetchWithPayment } = vaultRequire("@x402/fetch");
 const { ExactEvmScheme, toClientEvmSigner } = vaultRequire("@x402/evm");
 const { createPublicClient, http } = vaultRequire("viem");
@@ -52,7 +52,7 @@ async function main() {
   const url = process.argv[2];
   const confirm = process.argv.includes("--confirm");
   if (!url || !/^https:\/\//.test(url)) { console.error("Usage: node scripts/x402-buyer.mjs https://<api-url> [--confirm]"); process.exit(1); }
-  const env = { ...loadEnv(path.join(here, "../../../.env")), ...process.env };
+  const env = { ...loadEnv(path.join(process.cwd(), ".env")), ...loadEnv(path.join(here, "../../../.env")), ...process.env };
   const cfg = {
     perRequestCapUsdc: Number(env.X402_PER_REQUEST_CAP_USDC || 0.5),
     dailyCapUsdc: Number(env.X402_DAILY_CAP_USDC || 5),

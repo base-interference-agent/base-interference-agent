@@ -5,6 +5,12 @@ description: "Helps with Base (Coinbase's Ethereum L2): answers questions about 
 
 # Base Interference Agent
 
+## Install (for whoever uses this skill)
+1. Copy the whole `skills/base-interference-agent/` folder into the agent's skills folder.
+2. In that folder, run `npm install` once. This installs the packages the scripts need (viem and the x402 client).
+3. For o1 or Morpho features, put your own keys in a `.env` file in your working folder (see `.env.example` at the repo root).
+4. On Windows, if git reports "Filename too long" when cloning, enable long paths: `git config --global core.longpaths true`, then clone again.
+
 ## 0. First-time setup: agent wallet (.env)
 Use this when the user wants the agent to act on Base (send transactions, swap, borrow, or trade), or when they ask to set up a wallet. Otherwise skip it.
 1. Check whether `.env` exists and whether `AGENT_WALLET_PRIVATE_KEY` is set (non-empty). Never print or quote the value.
