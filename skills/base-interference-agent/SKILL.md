@@ -58,6 +58,13 @@ Rules for the key:
 - Safe (multisig smart wallet): use the official Safe app or docs at https://docs.safe.global. Don't invent a Safe deployment flow here.
 - Arbitrary contracts: don't deploy contracts the user supplies or describes. Only deploy code they've reviewed, on their own machine, after a test on a testnet or a dry run.
 
+## Approval at the time of the request
+- When a user's prompt asks for a money action (buy, sell, borrow, deposit, swap, claim, bet, rebalance, or any recurring plan), ask for approval in that same conversation, before anything is built or signed.
+- Show the plan at that moment: what, how much, where, fees, minimum result, risks, and when it would run.
+- Only act after an explicit yes to that exact plan. A general request or an earlier yes doesn't approve a new plan.
+- Recurring or conditional requests (for example, "buy when the price drops 10%" or "rebalance every week") aren't approved in advance. Each trade is shown and approved when it comes up. Don't set up any background job that trades.
+- If the user is away when a condition is met, record it as a proposal and wait. Don't execute it.
+
 ## Approval workflow (for every money action)
 Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all follow the same steps:
 1. Gather: read the data (balances, prices, rates, vault details, collateral health). Use read-only APIs first.
