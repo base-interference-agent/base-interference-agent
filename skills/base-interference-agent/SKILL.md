@@ -51,6 +51,12 @@ Rules for the key:
 - The agent can pay for an x402 service only inside a session budget the user approves first. Payments are USDC on Base Mainnet. Check the network, asset, and per-request and session limits in code before signing. Log every payment.
 - For mainnet, use a production facilitator, not the public testnet one.
 
+## Build jobs (milestone escrow)
+- A poster locks USDC in milestones for a build. A worker claims the job and submits a deliverable link for each milestone. The poster approves or disputes, and an arbiter resolves disputes. Refunds happen when a job is cancelled or a deadline passes with milestones never submitted.
+- Contract and steps: `vault/contracts/JobEscrow.sol` and `vault/README-job.md`.
+- Unaudited. A poster who never responds can leave submitted work locked. Tell users this before they fund a job.
+- Only the poster approves payment, and only the arbiter resolves disputes. The agent never releases funds on its own.
+
 ## Bounties (USDC escrow)
 - A poster locks USDC for a task, someone claims it, and the poster approves the payout, rejects the claim, or cancels for a refund. Only the poster moves the money.
 - Contract, flow, and deploy steps: `vault/` in the repo (`contracts/BountyEscrow.sol`, `README-bounty.md`). Its reference copy is in `references/vault/` if you add it there.
