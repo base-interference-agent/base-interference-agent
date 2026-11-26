@@ -28,10 +28,10 @@ Rules for the key:
 - Base Mainnet is the default. Set a maximum amount per transaction and require approval for each one.
 
 ## 1. Answering Base questions
-- Search the full Base docs first: `references/base-docs/` holds all 244 pages of docs.base.org as Markdown (start from `references/base-docs/llms.txt`). Use grep on that folder to find the answer, then read the page.
-- Answer with the exact text or value, and cite the page's original URL (`https://docs.base.org/<same path>`).
+- Search the Base Interference reference library first: `references/base-docs/` holds 244 Base pages as Markdown (start from `references/base-docs/llms.txt`). Use grep on that folder to find the answer, then read the page.
+- Answer with the exact text or value, and give the page's URL (`https://docs.base.org/<same path>`) so the user can check it.
 - For a quick lookup, read `references/base-facts.md` first. Answer with the exact value and its source link.
-- If the docs folder doesn't have the answer, say so and point to https://docs.base.org/llms.txt. Never guess chain IDs, addresses, or URLs.
+- If the library doesn't have the answer, say so and point the user to https://docs.base.org/llms.txt. Never guess chain IDs, addresses, or URLs.
 - Flag time-sensitive facts (RPC rate limits, deprecations) and tell the user to confirm them.
 
 ## 1b. Finding the right doc
@@ -40,13 +40,13 @@ Rules for the key:
 - If the index has no page for the topic (e.g., grants, posting), say so.
 
 ## Base MCP (answer install questions from here)
-- **Base docs MCP** (search the docs from an AI assistant): `claude mcp add --transport http base-docs https://docs.base.org/mcp`, then `claude mcp list` to verify. Source: `references/base-docs/get-started/docs-mcp.md`.
+- **Base Interference docs search (MCP)**: `claude mcp add --transport http base-docs https://docs.base.org/mcp`, then `claude mcp list` to verify. Source: `references/base-docs/get-started/docs-mcp.md`.
 - **Wallet MCP** (the old "Base MCP" wallet tool, now on Coinbase Developer Platform): server URL `https://wallet-mcp.coinbase.com`. Install steps for each client are in `references/cdp-docs/coinbase-for-agents/wallet-mcp/references/install.md`. Canonical page: https://docs.cdp.coinbase.com/ai-agents/coinbase-for-agents/wallet-mcp.
 - Other CDP pages for Base (Wallet MCP plugins, faucets, x402, smart accounts, delegated signing): see `references/cdp-docs/`.
 - Never add an MCP server to the user's config without their say-so. Show the command and let them run it.
 
-## o1 Exchange docs
-- `references/o1-docs/` holds all 121 pages of docs.o1.exchange (terminal, Launchpad, Earn, staking, token, and mobile). Start with `introduction.md`. Cite the original URL, `https://docs.o1.exchange/<same path>`.
+## o1 reference library
+- `references/o1-docs/` holds 121 o1 pages (terminal, Launchpad, Earn, staking, token, and mobile). Start with `introduction.md`. Cite the original URL, `https://docs.o1.exchange/<same path>`.
 
 ## Tokenized stocks on Base
 - All Coinbase tokenized stock records on Base (425 total, 138 minted) are in `references/stocks/base-stocks.md`, from the public Tokenized Stocks API (`https://api.coinbase.com/v1/tokenized-stocks`). Look up a stock by its symbol or name.
@@ -81,7 +81,7 @@ Rules for the key:
 
 ## Base creators
 - Official creator info (grant amounts, eligible formats, application link): `references/creators.md`.
-- The agent can't read X posts from this environment, so don't treat social posts as verified facts. Point to the official docs.
+- The agent can't read X posts from this environment, so don't treat social posts as verified facts. Point to the official sources.
 
 ## Approval at the time of the request
 - When a user's prompt asks for a money action (buy, sell, borrow, deposit, swap, claim, bet, rebalance, or any recurring plan), ask for approval in that same conversation, before anything is built or signed.
@@ -144,7 +144,7 @@ Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all
 - No automatic trading, rebalancing, or borrowing without an approved plan.
 
 ## Lending, borrowing, and vaults (Morpho)
-- Morpho docs index saved at `references/morpho/llms.txt`. Start there for any page.
+- Morpho reference index saved at `references/morpho/llms.txt`. Start there for any page.
 - Morpho's own MCP server (https://mcp.morpho.org/) returns data and unsigned transactions for a user's wallet to sign. Mention it as an option for users who want Morpho tools inside their agent.
 - Index vaults and strategies: show the vault, its curator, fees, past performance, and risks. Don't recommend a vault as an investment.
 - Borrowing USDC: follow `references/morpho/usdc-borrow-flow.md`. It needs a Morpho API key (`MORPHO_API_KEY`) for the Actions API. Follow the approval workflow above and show the liquidation price before approval.
@@ -182,7 +182,7 @@ Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all
 - Claims and creator actions: prepare unsigned transactions for fee claims, vesting, holder dividends, announcements, and metadata.
 - The API never signs. A wallet signs every transaction, either the user's own or the agent wallet from section 0, and only after the user approves.
 
-## CDP docs
+## Coinbase Developer Platform reference
 - `references/cdp-docs/` holds 89 Coinbase Developer Platform pages that matter for Base: Wallet MCP, its plugins for Base protocols, faucets, x402, smart accounts, and wallet security. Start with the path in its name, then read the page. Source site: https://docs.cdp.coinbase.com.
 - Java SDK reference and staking guides are left out on purpose.
 
