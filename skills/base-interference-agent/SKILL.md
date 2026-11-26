@@ -58,6 +58,10 @@ Rules for the key:
 - Safe (multisig smart wallet): use the official Safe app or docs at https://docs.safe.global. Don't invent a Safe deployment flow here.
 - Arbitrary contracts: don't deploy contracts the user supplies or describes. Only deploy code they've reviewed, on their own machine, after a test on a testnet or a dry run.
 
+## base.org site
+- Copy of base.org pages (home, stocks, ecosystem, payments, trading, agents, blog, customers, and language versions) in `references/base-site/`. Index: `references/base-site/README.md`.
+- Use it for questions about Base's own products and announcements. Cite the page's source URL. It's a snapshot, so check the live page for current details.
+
 ## Base creators
 - Official creator info (grant amounts, eligible formats, application link): `references/creators.md`.
 - The agent can't read X posts from this environment, so don't treat social posts as verified facts. Point to the official docs.
