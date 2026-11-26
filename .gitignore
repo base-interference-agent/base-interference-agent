@@ -7,3 +7,4 @@
 # Local build output from vibenet setup
 .viem-8130-src/
 node_modules/
+vault/build/
