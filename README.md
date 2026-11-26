@@ -26,17 +26,15 @@
 1. Copy the skill folder into your agent's skills directory:
    - Claude Code: `skills/base-interference-agent/` and the two bundled folders to `~/.claude/skills/`
    - Codex CLI: the same folders to `~/.codex/skills/`
-   - Other agents: copy `AGENTS.md` into your project root.
+   - Other agents that support skill folders: copy `skills/base-interference-agent/` the same way.
 2. For o1 features, create your own key at https://launch.o1.exchange/developers?chain=8453, copy `.env.example` to `.env`, and paste the key as `LAUNCHPAD_API_KEY=`.
 
 ## Layout
 ```
-skills/base-interference-agent/   the skill (SKILL.md + references/)
+skills/base-interference-agent/   the skill (SKILL.md, references/, scripts/)
 skills/build-on-base/             bundled from base/skills (MIT)
 skills/vibenet/                   bundled from base/skills (MIT)
-vendor/base-skills/               full copy of base/skills (MIT)
-proxy/                            optional team proxy for the o1 API
-AGENTS.md                         instructions for agents that read AGENTS.md
+vault/                            owner vault, bounty escrow, job escrow (unaudited) with tests
 NOTICE.md                         third-party copyright and license
 ```
 
@@ -46,4 +44,4 @@ NOTICE.md                         third-party copyright and license
 - Grant and program details can change. Confirm them on the linked forms before applying.
 
 ## License
-MIT for the bundled and vendored Base skills. See [NOTICE.md](NOTICE.md).
+MIT for the bundled Base skills. See [NOTICE.md](NOTICE.md).

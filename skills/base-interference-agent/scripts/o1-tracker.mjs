@@ -1,21 +1,25 @@
 #!/usr/bin/env node
-// o1 Launchpad tracker for Base: lists recent launches and flags volume spikes. Read-only.
-// Needs YOUR o1 key in O1_API_KEY (from .env). Create one at https://launch.o1.exchange/developers?chain=8453
-// Usage: node scripts/o1-tracker.mjs [limit]
-const key = process.env.O1_API_KEY;
-if (!key) { console.error("Set O1_API_KEY in your .env (your own key). Create one: https://launch.o1.exchange/developers?chain=8453"); process.exit(1); }
-const limit = Math.min(Number(process.argv[2] || 25), 100);
-const API = process.env.O1_API_BASE || "https://api.launch.o1.exchange/v1";
-const r = await fetch(`${API}/tokens?chain_id=8453&market=all&sort=trending&limit=${limit}`, { headers: { "x-api-key": key } });
-const j = await r.json();
-if (!j.data) { console.error("o1 API error:", JSON.stringify(j).slice(0, 300)); process.exit(1); }
-console.log(`Base launches (trending, top ${j.data.length}):\n`);
-for (const t of j.data) {
-  const tok = t.token || {};
-  const vol = t.stats?.volume_24h_usd ?? t.volume_24h_usd ?? null;
-  const prev = t.stats?.volume_prev_24h_usd ?? null;
-  let flag = "";
-  if (vol != null && prev != null && prev > 0 && vol / prev >= 3) flag = "  << VOLUME SPIKE (3x or more)";
-  console.log(`${(tok.symbol || "?").padEnd(10)} ${tok.address}  24h volume: ${vol ?? "n/a"}${flag}`);
+// o1 Alpha tokens on Base: the ranked token addresses o1 lists, with symbol and name read
+// from the chain. No API key needed. Read-only.
+// Usage: node scripts/o1-tracker.mjs
+const RPC = process.env.BASE_RPC_URL || "https://mainnet.base.org";
+const list = await (await fetch("https://api.o1.exchange/api/v1/alpha-tokens?networkId=8453")).json();
+if (!Array.isArray(list)) { console.error("Unexpected response from o1:", JSON.stringify(list).slice(0, 200)); process.exit(1); }
+const decodeString = (h) => {
+  if (!h || h.length < 130) return null;
+  const b = Buffer.from(h.slice(2), "hex");
+  return b.subarray(64, 64 + Number(BigInt("0x" + b.subarray(32, 64).toString("hex")))).toString("utf8");
+};
+async function call(to, data) {
+  const r = await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to, data }, "latest"] }) });
+  return (await r.json()).result ?? null;
 }
-console.log("\nRead-only. Trading is never automatic. Check each token with scripts/check-token.mjs first.");
+console.log(`o1 Alpha tokens on Base: ${list.length}\n`);
+for (const addr of list) {
+  const sym = decodeString(await call(addr, "0x95d89b41"));
+  const name = decodeString(await call(addr, "0x06fdde03"));
+  console.log(`${(sym || "?").padEnd(10)} ${(name || "").padEnd(28)} ${addr}`);
+}
+console.log("\nRead-only and key-free. For 24h volume and launch details, use the o1 Launchpad API with your own key.");
+console.log("Check any token with scripts/check-token.mjs before trading. Trading is never automatic.");
