@@ -128,8 +128,8 @@ Rules for the key:
 ## Easy wallet flow (for the user, on their own machine)
 1. Wallet: run `scripts/create-wallet.py` once. Get the address with `node scripts/show-address.mjs`. Paste only the address into the chat.
 2. Agent: prepares the transaction as a small JSON file (`to`, `data`, `value`) and shows the preview.
-3. You: review it, then run `node scripts/send-approved-tx.mjs tx.json` (dry run: simulates, sends nothing). Run it again with `--confirm` only if you approve. It signs with the key in your `.env`, refuses chains other than Base Mainnet, and refuses transactions that fail simulation.
-- The agent never signs, never sees the key, and never sends on its own.
+3. You: review it, then run `node scripts/send-approved-tx.mjs tx.json` (dry run: simulates, sends nothing). Run it again with `--confirm` only if you approve. Then it asks you to type SEND in your terminal. It refuses to send when no person is at an interactive terminal, so an agent can't finish it alone. It also refuses chains other than Base Mainnet and transactions that fail simulation.
+- The agent never signs, never sees the key, and never sends on its own. x402 payments use the same typed PAY confirmation.
 
 ## Approval workflow (for every money action)
 Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all follow the same steps:

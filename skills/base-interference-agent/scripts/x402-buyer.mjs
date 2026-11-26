@@ -74,6 +74,9 @@ async function main() {
   if (!decision.ok) { console.log(`REFUSED: ${decision.reason}. Nothing was paid.`); return; }
   if (!confirm) { console.log("Within caps. Dry run: nothing was paid. Re-run with --confirm after the user approves this payment."); return; }
 
+  const { humanConfirm } = await import("./confirm.mjs");
+  const h = await humanConfirm("PAY", `Pay ${Number(req.amount) / 1e6} USDC to ${req.payTo} for ${url}?`);
+  if (!h.ok) { console.log(h.reason + ". Nothing was paid."); return; }
   const key = env.AGENT_WALLET_PRIVATE_KEY;
   if (!key) { console.error("Set AGENT_WALLET_PRIVATE_KEY in .env on your machine (create the wallet with scripts/create-wallet.py)."); process.exit(1); }
   const account = privateKeyToAccount(key.startsWith("0x") ? key : "0x" + key);

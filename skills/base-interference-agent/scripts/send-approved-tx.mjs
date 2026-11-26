@@ -34,6 +34,9 @@ catch (e) { console.error("Simulation FAILS. Not sending.\n" + (e.shortMessage |
 const gas = await pub.estimateGas(request).catch(() => null);
 console.log(gas ? `Estimated gas: ${gas}` : "Gas estimate unavailable.");
 if (!confirm) { console.log("\nDRY RUN. Nothing was sent. Add --confirm to sign and send."); process.exit(0); }
+const { humanConfirm } = await import("./confirm.mjs");
+const h = await humanConfirm("SEND", `Send ${formatEther(request.value)} ETH from ${account.address} to ${tx.to}?`);
+if (!h.ok) { console.error(h.reason); process.exit(1); }
 const wallet = createWalletClient({ account, chain: base, transport });
 const hash = await wallet.sendTransaction(request);
 const rcpt = await pub.waitForTransactionReceipt({ hash });
