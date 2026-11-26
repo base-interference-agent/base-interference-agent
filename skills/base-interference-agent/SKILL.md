@@ -125,6 +125,12 @@ Rules for the key:
 - Revoke: `revoke <id>` turns off every permission and clears its skills and schedule. Remove any cron line for it.
 - Not built: the marketplace (discovery, listings, reputation), agent-to-agent requests, paid agents, and scheduled execution of approval-level actions. These need a hosted service and a secure signing provider that don't exist here.
 
+## Easy wallet flow (for the user, on their own machine)
+1. Wallet: run `scripts/create-wallet.py` once. Get the address with `node scripts/show-address.mjs`. Paste only the address into the chat.
+2. Agent: prepares the transaction as a small JSON file (`to`, `data`, `value`) and shows the preview.
+3. You: review it, then run `node scripts/send-approved-tx.mjs tx.json` (dry run: simulates, sends nothing). Run it again with `--confirm` only if you approve. It signs with the key in your `.env`, refuses chains other than Base Mainnet, and refuses transactions that fail simulation.
+- The agent never signs, never sees the key, and never sends on its own.
+
 ## Approval workflow (for every money action)
 Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all follow the same steps:
 1. Gather: read the data (balances, prices, rates, vault details, collateral health). Use read-only APIs first.
