@@ -1,6 +1,12 @@
 # Base Interference Agent
 
-**Powered by Base Interference.** An AI agent skill for building on and using [Base](https://base.org), Coinbase's Ethereum L2. It works with Claude Code, OpenAI Codex CLI, and other agents that support skills or `AGENTS.md`.
+**Powered by Base Interference.**
+
+This skill is for everyone building or using Base. It works as an AI agent for almost any Base task: asking questions, swapping, lending and borrowing, launching and trading tokens, building contracts, and checking stocks and portfolios. Every money action waits for your approval first.
+
+The first agent-launched token on o1 is **Base Interference ($BINT)**, on Base: https://launch.o1.exchange/token/0xb200000000000000000000231734d0c898f56201?chain=8453 (the project describes it as the first token launched by Claude; that's the owner's claim, not verified here).
+
+Works with Claude Code, OpenAI Codex CLI, and other agents that support skill folders.
 
 ## What you can do
 - **Ask about Base:** networks and chain IDs (Base Mainnet by default), RPC and explorer URLs, bridges, token addresses, wallets, SDKs, and grant programs. Answers come from the Base docs copied into the skill, with source links.
@@ -11,9 +17,12 @@
 - **Build on Base:** deploy contracts, add Builder Codes, run a node, and use the vibenet devnet, with the bundled Base skills.
 - **Find the right docs:** search the full Base docs, the o1 docs, and the Coinbase Developer Platform pages for Base.
 
+## Tools (read-only, scripts in `skills/base-interference-agent/scripts/`)
+- Token checker, transaction preview, portfolio view, Morpho health alerts (needs your key), o1 tracker, bounty board page.
+
 ## Planned, not built yet
-- **Portfolio view:** show a wallet's Base balances and values using read-only data.
 - **Rebalancing:** plan the trades that move a portfolio to a target split. Every trade needs your approval, and the agent never signs or sends anything on its own.
+- **Price-gap alerts, stock news, x402 paywall and client, token-gated tier, agent reputation, stock-lending.**
 
 ## Safety
 - The agent never asks for, prints, or commits your private key or seed phrase.
