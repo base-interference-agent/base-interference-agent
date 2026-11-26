@@ -115,6 +115,16 @@ Rules for the key:
 - Passing tests is not an audit. Tell the user the contracts are unaudited.
 - To test a new contract, add it under `vault/contracts/`, add a test in `vault/test/`, and add it to `vault/scripts/compile-all.mjs`.
 
+## Agents (create, configure, run, revoke)
+- Module: `scripts/agents/` (CLI: `node scripts/agents/cli.mjs <command>`). Agents are local JSON configs in `./.agents/` (git-ignored). Tests: `node --test scripts/agents/test.mjs`.
+- Creating an agent from a request: turn the user's words into a config (name, type, purpose, tasks, skills, networks, permission level, wallet address, limits, schedule). Show the full result (`create <file>` without `--confirm`), then save only after the user says yes (`--confirm`).
+- Permission levels: 1 read-only, 2 prepare, 3 approved execution, 4 restricted automation (needs allowed tokens and contracts, limits, and a schedule). A skill above the agent's level is refused at creation.
+- Wallets: the agent stores a public address only. Keys stay in the user's own `.env` or wallet app. Never ask for a key.
+- Runs: `run <id> <skill>` only executes read-only skills the agent holds, after the permission check. Every run and refusal is logged in `.agents/audit.jsonl`.
+- Scheduling: use cron on the user's machine, for example `*/30 * * * * cd <folder> && node scripts/agents/cli.mjs run <id> o1-tracker`. The agent doesn't run in the background by itself.
+- Revoke: `revoke <id>` turns off every permission and clears its skills and schedule. Remove any cron line for it.
+- Not built: the marketplace (discovery, listings, reputation), agent-to-agent requests, paid agents, and scheduled execution of approval-level actions. These need a hosted service and a secure signing provider that don't exist here.
+
 ## Approval workflow (for every money action)
 Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all follow the same steps:
 1. Gather: read the data (balances, prices, rates, vault details, collateral health). Use read-only APIs first.
