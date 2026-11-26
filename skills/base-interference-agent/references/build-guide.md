@@ -12,7 +12,7 @@ Use this when someone says they want to build something on Base. Ask what they'r
 | Stock tokens | `stocks/base-stocks.md`, and `scripts/check-token.mjs` before any trade |
 | Paid APIs (agent payments) | `x402/x402-agent.md` |
 | A vault, bounty, or job marketplace | `vault/` contracts, tests, and `vault/README*.md` |
-| A node or devnet | `build-on-base/` (run-node) and `vibenet/` |
+| A node | `build-on-base/` (run-node) |
 
 ## 2. Set up safely
 1. Add Base Mainnet (chain ID 8453) to the wallet. Confirm the chain ID before signing anything.

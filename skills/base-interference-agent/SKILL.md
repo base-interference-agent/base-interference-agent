@@ -189,7 +189,6 @@ Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all
 ## 2. Building on Base
 - For a task that needs more than the reference covers, use the bundled skills:
   - `skills/build-on-base/`: network setup, Foundry deployment, Builder Codes attribution (ERC-8021), agent registration, running a node.
-  - `skills/vibenet/`: the Base devnet for EIP-8130 account abstraction, gas sponsorship, and 200ms blocks. It is experimental and needs a viem fork (see that skill).
 - Always use an explicit chain ID (8453 for Base Mainnet). Use a dedicated RPC provider for production, not the public RPCs.
 - Never commit private keys or RPC/CDP API keys, and never expose them in client-side code.
 
@@ -209,4 +208,4 @@ Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all
 Confirm before anything hard to undo: deleting data, force-pushing, publishing, or spending money. Don't commit or push unless asked.
 
 ## Credits
-The bundled `build-on-base` and `vibenet` skills are from https://github.com/base/skills under the MIT License. See `NOTICE.md`.
+The bundled `build-on-base` skill is from https://github.com/base/skills under the MIT License. See `NOTICE.md`.

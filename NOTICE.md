@@ -1,6 +1,6 @@
 # Third-party notices
 
-The skills `build-on-base` and `vibenet` are copied from https://github.com/base/skills at commit 95b8ab2, under the MIT License below.
+The skill `build-on-base` is copied from https://github.com/base/skills at commit 95b8ab2, under the MIT License below.
 
 ```
 MIT License
