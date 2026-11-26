@@ -51,6 +51,11 @@ Rules for the key:
 - The agent can pay for an x402 service only inside a session budget the user approves first. Payments are USDC on Base Mainnet. Check the network, asset, and per-request and session limits in code before signing. Log every payment.
 - For mainnet, use a production facilitator, not the public testnet one.
 
+## Bounties (USDC escrow)
+- A poster locks USDC for a task, someone claims it, and the poster approves the payout, rejects the claim, or cancels for a refund. Only the poster moves the money.
+- Contract, flow, and deploy steps: `vault/` in the repo (`contracts/BountyEscrow.sol`, `README-bounty.md`). Its reference copy is in `references/vault/` if you add it there.
+- Unaudited. Use small amounts. Each payout is the poster's decision, so the agent never releases funds on its own.
+
 ## Owner vault and Safe wallets
 - Owner vault (ERC-4626, USDC on Base, only the owner can deposit and withdraw): source and steps in `references/vault/` (`OwnerVault.sol`, `README.md`). The full project, with compile and deploy scripts, is in the repo's `vault/` folder.
 - Unaudited. Tell the user to start with small amounts and to get a review before holding more.
