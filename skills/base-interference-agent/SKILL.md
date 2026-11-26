@@ -58,6 +58,10 @@ Rules for the key:
 - Safe (multisig smart wallet): use the official Safe app or docs at https://docs.safe.global. Don't invent a Safe deployment flow here.
 - Arbitrary contracts: don't deploy contracts the user supplies or describes. Only deploy code they've reviewed, on their own machine, after a test on a testnet or a dry run.
 
+## Base creators
+- Official creator info (grant amounts, eligible formats, application link): `references/creators.md`.
+- The agent can't read X posts from this environment, so don't treat social posts as verified facts. Point to the official docs.
+
 ## Approval at the time of the request
 - When a user's prompt asks for a money action (buy, sell, borrow, deposit, swap, claim, bet, rebalance, or any recurring plan), ask for approval in that same conversation, before anything is built or signed.
 - Show the plan at that moment: what, how much, where, fees, minimum result, risks, and when it would run.
