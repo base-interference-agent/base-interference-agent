@@ -4,6 +4,8 @@ Source: Coinbase Tokenized Stocks API, `GET https://api.coinbase.com/v1/tokenize
 Records: 425 total, 138 with a non-zero total supply. Zero-supply tokens are tokens that were never minted or were fully burned.
 Always confirm an address on BaseScan (https://basescan.org/token/<address>) before sending funds or adding it to a contract.
 
+Verification: on-chain symbol() and decimals() were checked against this list for all 425 records on the date of this commit. 425 of 425 matched, 0 problems. Re-run `node scripts/verify-stocks.mjs` to check again.
+
 | Symbol | Name | Contract address (Base) | Decimals | Multiplier | Total supply (raw) |
 |---|---|---|---|---|---|
 | AALc | American Airlines Group Inc. | `0xB2000000000000000000004FeB8D277Dd14b08Bb` | 8 | 1 | 160 |
