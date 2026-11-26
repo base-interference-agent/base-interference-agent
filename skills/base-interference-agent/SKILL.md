@@ -94,6 +94,12 @@ Rules for the key:
 - `scripts/bounty-board.html`: a static page that lists open bounties from a BountyEscrow address, read-only. Open it in a browser.
 - Always show the user the script output before any money step, then follow the approval workflow.
 
+## Contract testing
+- `scripts/test-contracts.sh` compiles and tests the owner vault, bounty escrow, and job escrow on a local Base-compatible chain. It checks 20 flows and the bounty page's decoding. Nothing goes to mainnet.
+- Use it before telling a user a contract works, and after any change to a contract.
+- Passing tests is not an audit. Tell the user the contracts are unaudited.
+- To test a new contract, add it under `vault/contracts/`, add a test in `vault/test/`, and add it to `vault/scripts/compile-all.mjs`.
+
 ## Approval workflow (for every money action)
 Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all follow the same steps:
 1. Gather: read the data (balances, prices, rates, vault details, collateral health). Use read-only APIs first.
