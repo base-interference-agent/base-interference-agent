@@ -1,0 +1,38 @@
+// Checks the bounty page's selector and decoding against a real bounty on a local chain.
+import fs from "node:fs";
+import path from "node:path";
+import assert from "node:assert/strict";
+import ganache from "ganache";
+import { createPublicClient, createWalletClient, http, parseUnits, defineChain } from "viem";
+import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const art = (n) => JSON.parse(fs.readFileSync(path.join(root, "build", n + ".json"), "utf8"));
+const PORT = 8566, RPC = `http://127.0.0.1:${PORT}`;
+const chain = defineChain({ id: 8453, name: "local", nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: [RPC] } } });
+const k = [generatePrivateKey(), generatePrivateKey()];
+const srv = ganache.server({ chain: { chainId: 8453, hardfork: "shanghai" }, wallet: { accounts: k.map((x) => ({ secretKey: x, balance: 10n ** 19n })) }, logging: { quiet: true } });
+await srv.listen(PORT);
+const pub = createPublicClient({ chain, transport: http(RPC) });
+const w = (key) => createWalletClient({ account: privateKeyToAccount(key), chain, transport: http(RPC) });
+const usdcA = art("MockUSDC"), bA = art("BountyEscrow");
+const dep = async (a, args) => (await pub.waitForTransactionReceipt({ hash: await w(k[0]).deployContract({ abi: a.abi, bytecode: a.bytecode, args }) })).contractAddress;
+const usdc = await dep(usdcA, []);
+const b = await dep(bA, [usdc]);
+const poster = privateKeyToAccount(k[0]).address;
+await pub.waitForTransactionReceipt({ hash: await w(k[0]).writeContract({ address: usdc, abi: usdcA.abi, functionName: "mint", args: [poster, parseUnits("25", 6)] }) });
+await pub.waitForTransactionReceipt({ hash: await w(k[0]).writeContract({ address: usdc, abi: usdcA.abi, functionName: "approve", args: [b, parseUnits("25", 6)] }) });
+await pub.waitForTransactionReceipt({ hash: await w(k[0]).writeContract({ address: b, abi: bA.abi, functionName: "createBounty", args: [parseUnits("25", 6), "page test"] }) });
+// Same calls the page makes:
+const SEL = "0xdc2f8744";
+const data = SEL + (0n).toString(16).padStart(64, "0");
+const res = await pub.request({ method: "eth_call", params: [{ to: b, data }, "latest"] });
+const words = res.slice(2).match(/.{64}/g);
+const amount = BigInt("0x" + words[2]);
+const open = BigInt("0x" + words[3]) === 1n;
+const posterOut = "0x" + words[0].slice(24);
+assert.equal(Number(amount) / 1e6, 25); assert.equal(open, true); assert.equal(posterOut.toLowerCase(), poster.toLowerCase());
+console.log("PASS bounty page decoding: amount 25 USDC, open, poster matches");
+const topic = (await pub.getLogs({ address: b, fromBlock: 0n, toBlock: "latest" }))[0].topics[0];
+assert.equal(topic, "0x1b5e39b039983ddb5862b33842ac157179867c6df1a61f69c50465fd14017f6e");
+console.log("PASS event topic matches BountyCreated");
+await srv.close();

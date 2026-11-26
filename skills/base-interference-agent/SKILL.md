@@ -89,6 +89,9 @@ Rules for the key:
 - `node scripts/preview-tx.mjs tx.json`: simulates a transaction and decodes approve, transfer, and transferFrom. Warns on unlimited approvals. Run it before the user signs.
 - `node scripts/portfolio.mjs <wallet> [cost-basis.json]`: ETH, USDC, and minted stock holdings with KyberSwap values and optional P&L.
 - `node scripts/bounty-board.mjs <escrow> [from-block]`: lists open bounties from a deployed BountyEscrow. Use the deploy block for full history. Public RPCs rate-limit log searches, so use a dedicated RPC (`BASE_RPC_URL`).
+- `node scripts/morpho-health.mjs <chain_id:market_id> [wallet] [warnBelowPct]`: warns when Morpho borrow positions are close to liquidation. Needs the user's own `MORPHO_API_KEY`.
+- `node scripts/o1-tracker.mjs [limit]`: trending Base launches on o1, with volume-spike flags. Needs the user's own `O1_API_KEY`.
+- `scripts/bounty-board.html`: a static page that lists open bounties from a BountyEscrow address, read-only. Open it in a browser.
 - Always show the user the script output before any money step, then follow the approval workflow.
 
 ## Approval workflow (for every money action)

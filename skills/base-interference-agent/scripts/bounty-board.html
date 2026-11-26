@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bounty board (Base)</title>
+<style>
+:root{--bg:#fff;--fg:#111;--mut:#666;--line:#ddd;--acc:#0052ff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0b0d10;--fg:#eaeef3;--mut:#9aa4b2;--line:#222831;--acc:#4d8bff}}
+:root[data-theme="dark"]{--bg:#0b0d10;--fg:#eaeef3;--mut:#9aa4b2;--line:#222831;--acc:#4d8bff}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif;padding:16px}
+main{max-width:720px;margin:0 auto}
+input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);box-sizing:border-box}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0}
+.amt{color:var(--acc);font-weight:600}
+.mut{color:var(--mut);font-size:14px;word-break:break-all}
+small.note{color:var(--mut)}
+</style></head>
+<body><main>
+<h1>Open bounties on Base</h1>
+<p class="mut">Read-only. Paste a BountyEscrow contract address. Claiming or approving is done in your own wallet.</p>
+<input id="addr" placeholder="BountyEscrow address (0x...)" autocomplete="off">
+<p><small class="note" id="status">Enter an address to load bounties.</small></p>
+<div id="list"></div>
+</main>
+<script>
+// Reads straight from a Base RPC. Set RPC below to a dedicated provider for real use.
+const RPC = "https://mainnet.base.org";
+const BOUNTY_CREATED = "0x1b5e39b039983ddb5862b33842ac157179867c6df1a61f69c50465fd14017f6e"; // keccak of BountyCreated(uint256,address,uint256)
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function rpc(method, params) {
+  const r = await fetch(RPC, {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({jsonrpc: "2.0", id: 1, method, params})});
+  const j = await r.json(); if (j.error) throw new Error(j.error.message); return j.result;
+}
+const hex = (n) => "0x" + BigInt(n).toString(16);
+async function load(addr) {
+  const status = document.getElementById("status"), list = document.getElementById("list");
+  list.innerHTML = ""; status.textContent = "Loading...";
+  try {
+    const latest = BigInt(await rpc("eth_blockNumber", []));
+    const from = latest > 40000n ? latest - 40000n : 0n;
+    const logs = await rpc("eth_getLogs", [{address: addr, topics: [BOUNTY_CREATED], fromBlock: hex(from), toBlock: hex(latest)}]);
+    let shown = 0;
+    for (const l of logs) {
+      const id = BigInt(l.topics[1]);
+      const data = "0xdc2f8744" + id.toString(16).padStart(64, "0");
+      const res = await rpc("eth_call", [{to: addr, data}, "latest"]);
+      const words = res.slice(2).match(/.{64}/g) || [];
+      const amount = BigInt("0x" + words[2]);
+      const open = BigInt("0x" + words[3]) === 1n;
+      if (!open) continue;
+      shown++;
+      const card = document.createElement("div"); card.className = "card";
+      card.innerHTML = `<div><span class="amt">${(Number(amount) / 1e6).toFixed(2)} USDC</span> &middot; bounty #${id}</div>
+        <div class="mut">poster ${esc("0x" + words[0].slice(24))}</div>`;
+      list.appendChild(card);
+    }
+    status.textContent = `${shown} open bounty(ies) in the last ~40,000 blocks (${logs.length} created).`;
+  } catch (e) { status.textContent = "Could not load: " + e.message; }
+}
+document.getElementById("addr").addEventListener("change", (e) => {
+  const a = e.target.value.trim();
+  if (/^0x[a-fA-F0-9]{40}$/.test(a)) load(a); else document.getElementById("status").textContent = "That is not a 0x address.";
+});
+</script>
+</main></body></html>
