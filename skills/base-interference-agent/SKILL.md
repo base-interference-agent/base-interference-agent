@@ -94,6 +94,11 @@ Rules for the key:
 - `scripts/bounty-board.html`: a static page that lists open bounties from a BountyEscrow address, read-only. Open it in a browser.
 - Always show the user the script output before any money step, then follow the approval workflow.
 
+## Helping someone build on Base
+- Start with `references/build-guide.md`. Ask what they're building, then follow its path table and steps.
+- Test before deploy (`scripts/test-contracts.sh`), dry-run the deploy, and deploy only from the user's own machine.
+- Before real users: a professional audit, Builder Codes, and clear risk notes.
+
 ## Contract testing
 - `scripts/test-contracts.sh` compiles and tests the owner vault, bounty escrow, and job escrow on a local Base-compatible chain. It checks 20 flows and the bounty page's decoding. Nothing goes to mainnet.
 - Use it before telling a user a contract works, and after any change to a contract.
