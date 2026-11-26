@@ -43,7 +43,7 @@ Rules for the key:
 - `references/o1-docs/` holds all 121 pages of docs.o1.exchange (terminal, Launchpad, Earn, staking, token, and mobile). Start with `introduction.md`. Cite the original URL, `https://docs.o1.exchange/<same path>`.
 
 ## Tokenized stocks on Base
-- Contract addresses for each stock on base.org/stocks (NVDA, AAPL, MSFT, GOOGL, AMZN, META, TSLA, MSTR, SNDK, SPCX) are in `references/stocks/base-stocks.md`.
+- All Coinbase tokenized stock records on Base (425 total, 138 minted) are in `references/stocks/base-stocks.md`, from the public Tokenized Stocks API (`https://api.coinbase.com/v1/tokenized-stocks`). Look up a stock by its symbol or name.
 - Always confirm an address on BaseScan before sending funds. Stock tokens have their own terms and risks.
 
 ## x402 (pay for APIs, charge for yours)
