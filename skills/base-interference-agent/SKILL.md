@@ -54,13 +54,13 @@ Rules for the key:
 ## Build jobs (milestone escrow)
 - A poster locks USDC in milestones for a build. A worker claims the job and submits a deliverable link for each milestone. The poster approves or disputes, and an arbiter resolves disputes. Refunds happen when a job is cancelled or a deadline passes with milestones never submitted.
 - Contract and steps: `vault/contracts/JobEscrow.sol` and `vault/README-job.md`.
-- Unaudited. A poster who never responds can leave submitted work locked. Tell users this before they fund a job.
+- Tested on a local Base-compatible chain (20 checks in `vault/test/run.mjs`). Not audited. A poster who never responds can leave submitted work locked. Tell users this before they fund a job.
 - Only the poster approves payment, and only the arbiter resolves disputes. The agent never releases funds on its own.
 
 ## Bounties (USDC escrow)
 - A poster locks USDC for a task, someone claims it, and the poster approves the payout, rejects the claim, or cancels for a refund. Only the poster moves the money.
 - Contract, flow, and deploy steps: `vault/` in the repo (`contracts/BountyEscrow.sol`, `README-bounty.md`). Its reference copy is in `references/vault/` if you add it there.
-- Unaudited. Use small amounts. Each payout is the poster's decision, so the agent never releases funds on its own.
+- Tested on a local chain, not audited. Use small amounts. Each payout is the poster's decision, so the agent never releases funds on its own.
 
 ## Owner vault and Safe wallets
 - Owner vault (ERC-4626, USDC on Base, only the owner can deposit and withdraw): source and steps in `references/vault/` (`OwnerVault.sol`, `README.md`). The full project, with compile and deploy scripts, is in the repo's `vault/` folder.

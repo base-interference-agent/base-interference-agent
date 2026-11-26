@@ -30,3 +30,8 @@ An ERC-4626 vault for USDC on Base. Only the owner wallet can deposit and withdr
 - The key is read from `.env` on your computer and never printed or sent to the chat.
 - Don't commit `.env`.
 - Keep the owner key safe. Anyone who has it controls the vault.
+
+## Tests
+`npm run test` deploys the vault, bounty, and job contracts to a local Base-compatible chain (chain ID 8453, Shanghai) and runs 20 checks. They cover the allowed flows and the rejected ones: a stranger can't withdraw, only the worker can submit, only the arbiter resolves disputes, no claim after the deadline, and refunds after the deadline.
+
+**Not audited.** Passing tests isn't a security review. A professional audit is still needed before large amounts.

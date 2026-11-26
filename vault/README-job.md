@@ -20,3 +20,6 @@ If the poster never approves or disputes a submitted milestone, that money stays
 1. `npm install`, then `node scripts/compile-job.mjs`.
 2. Put `OWNER_PRIVATE_KEY=<your key>` in `../.env`. Keep ETH on Base Mainnet for gas.
 3. `node scripts/deploy-job.mjs` (dry run), then `node scripts/deploy-job.mjs --confirm`.
+
+## Tests
+Run `npm run test`. The job flows (claim, submit, approve, dispute, arbiter resolution, deadline refund, and cancel) are checked on a local chain with 20 total checks shared with the vault and bounty. Passing tests isn't an audit.
