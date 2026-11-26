@@ -51,6 +51,13 @@ Rules for the key:
 - The agent can pay for an x402 service only inside a session budget the user approves first. Payments are USDC on Base Mainnet. Check the network, asset, and per-request and session limits in code before signing. Log every payment.
 - For mainnet, use a production facilitator, not the public testnet one.
 
+## Owner vault and Safe wallets
+- Owner vault (ERC-4626, USDC on Base, only the owner can deposit and withdraw): source and steps in `references/vault/` (`OwnerVault.sol`, `README.md`). The full project, with compile and deploy scripts, is in the repo's `vault/` folder.
+- Unaudited. Tell the user to start with small amounts and to get a review before holding more.
+- Deployment uses the user's own wallet on their own computer. Never ask for the key in chat. Never deploy for them. Walk them through `npm run deploy` (dry run first), then `--confirm`.
+- Safe (multisig smart wallet): use the official Safe app or docs at https://docs.safe.global. Don't invent a Safe deployment flow here.
+- Arbitrary contracts: don't deploy contracts the user supplies or describes. Only deploy code they've reviewed, on their own machine, after a test on a testnet or a dry run.
+
 ## Approval workflow (for every money action)
 Lending, borrowing, vault deposits, swaps, launches, claims, and rebalancing all follow the same steps:
 1. Gather: read the data (balances, prices, rates, vault details, collateral health). Use read-only APIs first.
